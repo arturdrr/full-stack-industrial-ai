@@ -34,10 +34,22 @@ jobs:
           poetry config virtualenvs.create true
           poetry config virtualenvs.in-project true
       
+      - name: 🧹 Clear Poetry Cache and Venv
+        run: |
+          poetry cache clear --all pypi
+          rm -rf poetry.lock
+          rm -rf .venv
+
       - name: 📋 Install Dependencies
         run: |
           poetry install --with dev --verbose
       
+      - name: 🔍 Debug: Show pyproject.toml
+        run: cat pyproject.toml
+
+      - name: 🔍 Debug: List installed packages
+        run: poetry run pip list
+
       - name: 🧪 Run Tests
         run: |
           # Verificar se pytest e pytest-cov estão disponíveis
