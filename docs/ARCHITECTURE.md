@@ -37,7 +37,7 @@ O design arquitetural segue princípios de microsserviços e integração contí
 - **Qdrant/ChromaDB**: Bancos de dados vetoriais para Retrieval-Augmented Generation (RAG), permitindo buscar informações relevantes para LLMs.
 - **LightRAG**: Ferramenta otimizada para a construção de sistemas RAG leves e eficientes, garantindo respostas contextuais.
 
-**Interações**: Comunicação via API REST padronizada, com sistema de fallback automático entre provedores. Os modelos são invocados pelos agentes através do MCP, que gerencia o contexto da conversa e aplica políticas de rate-limiting e retry. Sistemas RAG, como FAISS/Pinecone e LightRAG, são utilizados para enriquecer as consultas aos LLMs.
+**Interações**: Comunicação via API REST padronizada, com sistema de fallback automático entre provedores. Os modelos são invocados pelos agentes através do MCP, que gerencia o contexto da conversa e aplica políticas de rate-limiting e retry. Sistemas RAG, como Qdrant/ChromaDB e LightRAG, são utilizados para enriquecer as consultas aos LLMs.
 
 ### 4. Automação e Orquestração de Workflows
 - **n8n**: Plataforma low-code para automação de workflows, permitindo integração com mais de 200 serviços
