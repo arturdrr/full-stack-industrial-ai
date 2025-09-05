@@ -21,10 +21,11 @@ O design arquitetural segue princípios de microsserviços e integração contí
 
 ### 2. Agentes IA e Orquestração
 - **Trae Agent**: Agente principal para automação de tarefas, capaz de executar operações complexas através de ferramentas definidas
-- **LangChain**: Framework para composição de aplicações com LLMs, integrando-se com diversos providers
+- **LangChain**: Framework para composição de aplicações com LLMs, integrando-se com diversos providers, incluindo **LangChain CLI** para interações via linha de comando.
 - **Dyad**: Agente conversacional avançado otimizado para diálogos complexos e multi-turn
 - **OpenHands**: Orquestração multi-agente com capacidade para distribuição de tarefas
-- **MCPs**: Proxies para roteamento, balanceamento e gestão de contexto entre diferentes provedores de LLM
+- **AutoGen CLI**: Ferramenta para habilitar conversas multi-agentes e automação de tarefas complexas.
+- **MCPs**: Proxies para roteamento, balanceamento e gestão de contexto entre diferentes provedores de LLM, com o **LiteLLM Proxy CLI** fornecendo uma interface de linha de comando para gerenciamento de LLMs.
 
 **Interações**: Os agentes comunicam-se entre si via barramento de mensagens em formato JSON estruturado. O MCP atua como camada de abstração, direcionando requisições para os modelos apropriados com base em critérios como latência, custo e capacidades.
 
@@ -32,8 +33,10 @@ O design arquitetural segue princípios de microsserviços e integração contí
 - **Abacus API**: Serviço cloud para modelos de IA de alta performance, oferecendo modelos de vários tamanhos
 - **Ollama**: Execução local de modelos para privacidade e controle de custos, com suporte a modelos quantizados
 - **HuggingFace**: Acesso a modelos open source com diversidade de capacidades específicas
+- **FAISS ou Pinecone**: Bancos de dados vetoriais para Retrieval-Augmented Generation (RAG), permitindo buscar informações relevantes para LLMs.
+- **LightRAG**: Ferramenta otimizada para a construção de sistemas RAG leves e eficientes, garantindo respostas contextuais.
 
-**Interações**: Comunicação via API REST padronizada, com sistema de fallback automático entre provedores. Os modelos são invocados pelos agentes através do MCP, que gerencia o contexto da conversa e aplica políticas de rate-limiting e retry.
+**Interações**: Comunicação via API REST padronizada, com sistema de fallback automático entre provedores. Os modelos são invocados pelos agentes através do MCP, que gerencia o contexto da conversa e aplica políticas de rate-limiting e retry. Sistemas RAG, como FAISS/Pinecone e LightRAG, são utilizados para enriquecer as consultas aos LLMs.
 
 ### 4. Automação e Orquestração de Workflows
 - **n8n**: Plataforma low-code para automação de workflows, permitindo integração com mais de 200 serviços
@@ -47,8 +50,10 @@ O design arquitetural segue princípios de microsserviços e integração contí
 - **Keycloak**: Gerenciamento de identidade e acesso (IAM) centralizado com suporte a OIDC/SAML
 - **Vault**: Gerenciamento seguro de segredos, permitindo rotação automática de credenciais
 - **Bitwarden**: Gerenciamento de senhas self-hosted para controle total dos dados
+- **Snyk Code AI CLI**: Ferramenta de linha de comando para análise de segurança de código assistida por IA, identificando vulnerabilidades em tempo real.
+- **Syncthing**: Ferramenta de sincronização de arquivos ponto a ponto, usada para backups distribuídos e sincronização de dados sensíveis entre componentes.
 
-**Interações**: Todos os componentes se autenticam via Keycloak, que emite tokens JWT. O Vault fornece credenciais dinâmicas para acesso a bancos de dados e APIs externas, integrado com o Kubernetes via injector de secrets.
+**Interações**: Todos os componentes se autenticam via Keycloak, que emite tokens JWT. O Vault fornece credenciais dinâmicas para acesso a bancos de dados e APIs externas, integrado com o Kubernetes via injector de secrets. Snyk Code AI CLI é integrado ao pipeline de CI/CD para varredura de vulnerabilidades, enquanto Syncthing garante a resiliência e disponibilidade de dados críticos.
 
 ### 6. Monitoramento
 - **Prometheus**: Coleta de métricas em tempo real com alta disponibilidade
@@ -66,8 +71,10 @@ O design arquitetural segue princípios de microsserviços e integração contí
 ### 8. Ambiente Python
 - **Poetry**: Gerenciamento de dependências e pacotes com resolução determinística
 - **Conda**: Ambientes para computação científica com bibliotecas nativas otimizadas
+- **spaCy**: Biblioteca avançada para Processamento de Linguagem Natural (NLP), usada para tarefas como tokenização, reconhecimento de entidades e análise sintática.
+- **Lark**: Ferramenta de análise sintática (parser) versátil, útil para criar gramáticas e processar dados textuais estruturados.
 
-**Interações**: Poetry gerencia as dependências dos agentes IA, enquanto Conda é utilizado para ambientes específicos de ciência de dados e computação intensiva.
+**Interações**: Poetry gerencia as dependências dos agentes IA, enquanto Conda é utilizado para ambientes específicos de ciência de dados e computação intensiva. spaCy e Lark são integrados aos agentes para capacidades avançadas de NLP e interpretação de comandos ou dados textuais.
 
 ### 9. Integração Pós-Deploy
 - **OpenRouter**: Roteamento de APIs com cache e rate-limiting
