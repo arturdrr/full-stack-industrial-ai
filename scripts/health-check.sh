@@ -8,11 +8,11 @@ readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 readonly LOG_DIR="$PROJECT_ROOT/logs"
 
 # Colors
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
-readonly BLUE='\033[0;34m'
-readonly NC='\033[0m' # No Color
+readonly RED='[0;31m'
+readonly GREEN='[0;32m'
+readonly YELLOW='[1;33m'
+readonly BLUE='[0;34m'
+readonly NC='[0m' # No Color
 
 # Source environment
 if [[ -f "$PROJECT_ROOT/.env.local" ]]; then
@@ -40,7 +40,7 @@ check_service() {
     local expected_status="$3"
     local timeout="${4:-5}"
 
-    log "Checking $service_name at $url..."
+    log "Checking $service_name at $health_url..."
     
     local response_code
     response_code=$(curl -s -o /dev/null -w "% {http_code}" "$health_url" 2>/dev/null || echo "000")
@@ -138,7 +138,7 @@ check_resource_usage() {
     
     # Check Docker stats
     log "🐳 Docker resource usage:"
-    docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}" | head -6
+    docker stats --no-stream --format "table {{.Container}}	{{.CPUPerc}}	{{.MemUsage}}" | head -6
 }
 
 check_log_errors() {
