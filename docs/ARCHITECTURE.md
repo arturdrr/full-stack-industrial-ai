@@ -33,6 +33,7 @@ O design arquitetural segue princípios de microsserviços e integração contí
 - **Abacus API**: Serviço cloud para modelos de IA de alta performance, oferecendo modelos de vários tamanhos
 - **Ollama**: Execução local de modelos para privacidade e controle de custos, com suporte a modelos quantizados
 - **HuggingFace**: Acesso a modelos open source com diversidade de capacidades específicas
+- **LocalAI**: Ambiente local para inferência de modelos de IA, compatível com a API OpenAI, para privacidade e controle.
 - **Qdrant/ChromaDB**: Bancos de dados vetoriais para Retrieval-Augmented Generation (RAG), permitindo buscar informações relevantes para LLMs.
 - **LightRAG**: Ferramenta otimizada para a construção de sistemas RAG leves e eficientes, garantindo respostas contextuais.
 
