@@ -1,43 +1,227 @@
-# 📜 Código de Conduta
+# Documentação da API
 
-## Nosso Compromisso
+Esta documentação descreve a API RESTful do Full-Stack Industrial AI Environment.
 
-No interesse de promover um ambiente aberto e acolhedor, nós, como contribuidores e mantenedores, nos comprometemos a tornar a participação em nosso projeto e em nossa comunidade uma experiência livre de assédio para todos, independentemente de idade, tamanho corporal, deficiência, etnia, identidade e expressão de gênero, nível de experiência, nacionalidade, aparência pessoal, raça, religião, identidade ou orientação sexual.
+## Autenticação
 
-## Nossos Padrões
+Todas as requisições à API devem ser autenticadas usando OAuth2 via Keycloak:
 
-Exemplos de comportamento que contribuem para criar um ambiente positivo incluem:
+- **Tipo**: Bearer Token
+- **Cabeçalho**: `Authorization: Bearer {token}`
 
-* Usar linguagem acolhedora e inclusiva
-* Respeitar pontos de vista e experiências diferentes
-* Aceitar críticas construtivas com elegância
-* Focar no que é melhor para a comunidade
-* Mostrar empatia para com outros membros da comunidade
+Para obter um token:
 
-Exemplos de comportamento inaceitável incluem:
+```bash
+curl -X POST "http://keycloak-server/realms/industrial-ai/protocol/openid-connect/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "client_id=api" \
+  -d "client_secret=YOUR_CLIENT_SECRET" \
+  -d "grant_type=password" \
+  -d "username=YOUR_USERNAME" \
+  -d "password=YOUR_PASSWORD"
+```
+## Endpoints Principais
 
-* Uso de linguagem ou imagens sexualizadas e atenção ou avanços sexuais indesejados
-* Comentários insultuosos/pejorativos e ataques pessoais ou políticos
-* Assédio público ou privado
-* Publicar informações privadas de terceiros sem permissão explícita
-* Outras condutas que poderiam ser consideradas inadequadas em um ambiente profissional
+### Agentes IA
 
-## Nossas Responsabilidades
+#### Executar Agente
+- **Endpoint**: `/agent/run`
+- **Método**: `POST`
+- **Descrição**: Executa tarefa ou comando no agente IA específico.
+- **Parâmetros**:
 
-Os mantenedores do projeto são responsáveis por esclarecer os padrões de comportamento aceitável e devem tomar medidas corretivas apropriadas e justas em resposta a quaisquer instâncias de comportamento inaceitável.
+| Nome      | Tipo   | Obrigatório | Descrição                                  |
+|-----------|--------|-------------|--------------------------------------------|
+| `agent_id`| `string` | Sim         | ID do agente a ser acionado                |
+| `command` | `string` | Sim         | Comando ou prompt a executar               |
+| `context` | `string` | Não         | Contexto adicional (opcional)              |
 
-Os mantenedores do projeto têm o direito e a responsabilidade de remover, editar ou rejeitar comentários, commits, código, edições wiki, issues e outras contribuições que não estejam alinhadas a este Código de Conduta, ou de banir temporária ou permanentemente qualquer contribuidor por outros comportamentos que considerem inadequados, ameaçadores, ofensivos ou prejudiciais.
+**Exemplo de requisição:**
+```bash
+curl -X POST "https://api.seu-servidor.com/agent/run" \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "agent_id": "trae-agent",
+    "command": "Gerar resumo do relatório",
+    "context": "Relatório de vendas Q3 2025"
+  }'
+```
+**Exemplo de resposta:**
+```json
+{
+  "status": "success",
+  "request_id": "req-123456",
+  "output": "Resumo do relatório de vendas Q3 2025: Crescimento de 15% YoY...",
+  "execution_time": 1.2
+}
+```
 
-## Escopo
+#### Status do Agente
+- **Endpoint**: `/agent/status/{agent_id}`
+- **Método**: `GET`
+- **Descrição**: Retorna o status atual do agente especificado.
+- **Parâmetros de URL**:
 
-Este Código de Conduta se aplica tanto em espaços do projeto quanto em espaços públicos quando um indivíduo está representando o projeto ou sua comunidade. Exemplos de representação do projeto incluem o uso de um endereço de e-mail oficial do projeto, postagem por meio de uma conta oficial de mídia social ou atuação como representante designado em um evento online ou offline. A representação de um projeto pode ser definida e esclarecida pelos mantenedores do projeto.
+| Nome      | Tipo   | Descrição                |
+|-----------|--------|--------------------------| 
+| `agent_id`| `string` | ID do agente desejado    |
 
-## Aplicação
+**Exemplo de requisição:**
+```bash
+curl -X GET "https://api.seu-servidor.com/agent/status/trae-agent" \
+  -H "Authorization: Bearer {token}"
+```
+**Exemplo de resposta:**
+```json
+{
+  "status": "active",
+  "version": "1.5.2",
+  "model": "abacus-llm-v1",
+  "queue_size": 0,
+  "last_activity": "2025-09-04T10:15:30Z"
+}
+```
 
-Instâncias de comportamento abusivo, de assédio ou de outra forma inaceitável podem ser relatadas entrando em contato com a equipe do projeto em [arturdr@gmail.com](mailto:arturdr@gmail.com). Todas as reclamações serão analisadas e investigadas e resultarão em uma resposta considerada necessária e apropriada às circunstâncias. A equipe do projeto é obrigada a manter a confidencialidade em relação ao relator de um incidente. Mais detalhes de políticas específicas de aplicação podem ser publicados separadamente.
+### Modelos LLM
 
-Mantenedores do projeto que não seguem ou não fazem cumprir o Código de Conduta de boa fé podem enfrentar repercussões temporárias ou permanentes, conforme determinado por outros membros da liderança do projeto.
+#### Status dos Modelos
+- **Endpoint**: `/model/status`
+- **Método**: `GET`
+- **Descrição**: Retorna status e uso dos modelos configurados.
 
-## Atribuição
+**Exemplo de requisição:**
+```bash
+curl -X GET "https://api.seu-servidor.com/model/status" \
+  -H "Authorization: Bearer {token}"
+```
+**Exemplo de resposta:**
+```json
+{
+  "models": [
+    {
+      "id": "abacus-llm-v1",
+      "provider": "abacus",
+      "status": "active",
+      "usage_count": 245,
+      "average_latency": 0.8
+    },
+    {
+      "id": "ollama-local",
+      "provider": "ollama",
+      "status": "active",
+      "usage_count": 87,
+      "average_latency": 1.2
+    }
+  ],
+  "default_model": "abacus-llm-v1"
+}
+```
 
-Este Código de Conduta é adaptado do [Contributor Covenant](https://www.contributor-covenant.org), versão 1.4, disponível em [https://www.contributor-covenant.org/version/1/4/code-of-conduct.html](https://www.contributor-covenant.org/version/1/4/code-of-conduct.html)
+#### Adicionar Modelo ao MCP Proxy
+- **Endpoint**: `/proxy/model/add`
+- **Método**: `POST`
+- **Descrição**: Adiciona um novo modelo ao MCP Proxy.
+- **Parâmetros**:
+
+| Nome        | Tipo     | Obrigatório | Descrição                                  |
+|-------------|----------|-------------|--------------------------------------------|
+| `model_id`  | `string` | Sim         | Identificador do modelo                    |
+| `provider`  | `string` | Sim         | Provedor do modelo                         |
+| `endpoint`  | `string` | Sim         | URL do endpoint                            |
+| `api_key`   | `string` | Não         | Chave de API (se necessária)               |
+| `max_tokens`| `number` | Não         | Limite de tokens (opcional)                |
+
+**Exemplo de requisição:**
+```bash
+curl -X POST "https://api.seu-servidor.com/proxy/model/add" \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model_id": "huggingface-llama3",
+    "provider": "huggingface",
+    "endpoint": "https://api.huggingface.co/models/meta-llama/Llama-3-70b",
+    "api_key": "YOUR_HF_API_KEY",
+    "max_tokens": 4096
+  }'
+```
+**Exemplo de resposta:**
+```json
+{
+  "status": "success",
+  "message": "Modelo huggingface-llama3 adicionado com sucesso",
+  "model_id": "huggingface-llama3"
+}
+```
+
+### Workflows e Automação
+
+#### Listar Workflows
+- **Endpoint**: `/workflows`
+- **Método**: `GET`
+- **Descrição**: Lista todos os workflows disponíveis.
+- **Parâmetros de Query**:
+
+| Nome    | Tipo     | Obrigatório | Descrição                                  |
+|---------|----------|-------------|--------------------------------------------|
+| `status`| `string` | Não         | Filtrar por status (active/inactive)       |
+| `page`  | `number` | Não         | Página para paginação                      |
+| `limit` | `number` | Não         | Limite de itens por página                 |
+
+**Exemplo de requisição:**
+```bash
+curl -X GET "https://api.seu-servidor.com/workflows?status=active&page=1&limit=10" \
+  -H "Authorization: Bearer {token}"
+```
+
+#### Executar Workflow
+- **Endpoint**: `/workflow/execute/{workflow_id}`
+- **Método**: `POST`
+- **Descrição**: Executa um workflow específico.
+- **Parâmetros de URL**:
+
+| Nome          | Tipo     | Descrição                        |
+|---------------|----------|----------------------------------|
+| `workflow_id` | `string` | ID do workflow a ser executado   |
+
+- **Parâmetros do Body**: Variáveis necessárias para o workflow (dependem do workflow específico)
+
+**Exemplo de requisição:**
+```bash
+curl -X POST "https://api.seu-servidor.com/workflow/execute/data-processing-flow" \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input_data": "https://storage.example.com/data.csv",
+    "options": {
+      "normalize": true,
+      "remove_outliers": true
+    }
+  }'
+```
+
+## Códigos de Erro
+
+
+| Código | Status             | Descrição                                  |
+|--------|--------------------|--------------------------------------------|
+| `200`  | `OK`               | Requisição bem-sucedida                    |
+| `201`  | `Created`          | Recurso criado com sucesso                 |
+| `400`  | `Bad Request`      | Parâmetros inválidos ou ausentes           |
+| `401`  | `Unauthorized`     | Token de autenticação inválido ou ausente  |
+| `403`  | `Forbidden`        | Permissões insuficientes para o recurso    |
+| `404`  | `Not Found`        | Recurso não encontrado                     |
+| `429`  | `Too Many Requests`| Taxa de requisições excedida               |
+| `500`  | `Internal Error`   | Erro interno do servidor                   |
+| `503`  | `Service Unavailable`| Serviço temporariamente indisponível       |
+
+## Versionamento da API
+A API utiliza versionamento via URL path. A versão atual é v1.
+
+**Exemplo:**
+`https://api.seu-servidor.com/v1/agent/run`
+
+## Recursos Adicionais
+
+- Swagger UI - Documentação interativa
+- Postman Collection - Coleção Postman pronta para uso
