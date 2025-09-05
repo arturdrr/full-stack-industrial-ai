@@ -109,12 +109,7 @@ Para uma instalação manual detalhada, consulte nossa documentação de deploym
 ### Configuração Inicial
 ```bash
 # Configurar variáveis de ambiente
-export ABACUS_API_KEY="sua-chave-aqui"
-export OPENAI_API_KEY="sua-chave-aqui"
-export GOOGLE_API_KEY="sua-chave-aqui" # Para Gemini
-export ANTHROPIC_API_KEY="sua-chave-aqui" # Para Claude
-export PERPLEXITY_API_KEY="sua-chave-aqui" # Para Perplexity
-export HUGGINGFACE_API_KEY="sua-chave-aqui"
+# Configure suas variáveis de ambiente em .env.local
 
 # Iniciar containers essenciais
 docker-compose -f docker-compose.yml up -d
