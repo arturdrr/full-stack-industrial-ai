@@ -1,521 +1,96 @@
-text
-# Configuração Unificada dos Agentes de IA
-# Full-Stack Industrial AI Development Environment
+# ================================
+# AGENTES COM ROTEAMENTO OTIMIZADO
+# ================================
+version: "1.3.0"
+environment: "grok-gemini-optimized"
 
-version: "1.0.0"
-environment: development
-
-# ================================
-# CONFIGURAÇÃO GLOBAL
-# ================================
-global:
-  max_concurrent_agents: 10
-  default_timeout: 300  # 5 minutos
-  retry_attempts: 3
-  log_level: INFO
-  
-  # Configurações de fallback
-  fallback_strategy: "round_robin"  # round_robin | priority | load_balanced
-  
-  # Métricas e observabilidade
-  metrics:
-    enabled: true
-    port: 9090
-    export_interval: 30
-
-# ================================
-# INTELIGÊNCIA DE ROTEAMENTO
-# ================================
 routing_intelligence:
   enabled: true
+  
+  # Classificador de queries
   query_classifier:
-    strategy: "hybrid" # simple_patterns | complex_patterns | llm_based
     simple_patterns:
-      - "código"
-      - "desenvolvimento"
-      - "análise de texto"
-      - "privacidade"
-      - "local"
-      - "orquestração"
-      - "automação"
+      - "What is"
+      - "How to"
+      - "Quick question"
+      - "Simple code"
+      - regex: "^.{1,100}$"  # Queries muito curtas
+      
     complex_patterns:
-      code_generation:
-        keywords: ["gerar código", "escrever script", "implementar função"]
-        exclude: ["revisar código"]
-      nlp_analysis:
-        keywords: ["analisar documento", "resumir texto", "extrair informações"]
-        min_length: 50 # caracteres
-      privacy_sensitive:
-        keywords: ["dados confidenciais", "processamento local", "privacidade"]
-      orchestration:
-        keywords: ["coordenar agentes", "fluxo de trabalho", "automatizar"]
+      - "Analyze"
+      - "Compare and contrast"
+      - "Write a detailed"
+      - "Complex reasoning"
+      - regex: "^.{500,}$"   # Queries longas
 
-# ================================
-# PROVEDORES DE MODELOS
-# ================================
-model_providers:
-  abacus:
-    type: cloud
-    api_key: ${ABACUS_API_KEY}
-    endpoint: "https://api.abacus.ai/llm/v1"
-    rate_limit: 100  # requests per minute
-    priority: 1
-    
-  openai:
-    type: cloud
-    api_key: ${OPENAI_API_KEY}
-    endpoint: "https://api.openai.com/v1"
-    rate_limit: 60
-    priority: 2
-    
-  huggingface:
-    type: cloud
-    api_key: ${HUGGINGFACE_API_KEY}
-    endpoint: "https://api-inference.huggingface.co"
-    rate_limit: 30
-    priority: 3
-    
-  ollama:
-    type: local
-    endpoint: "http://localhost:11434"
-    health_check: "/api/tags"
-    priority: 4
-
-# ================================
-# MODELOS DISPONÍVEIS
-# ================================
-models:
-  # Modelos para tarefas principais
-  trae_agent_model:
-    provider: abacus
-    model_name: "abacus-llm-v1"
-    max_tokens: 4096
-    temperature: 0.5
-    context_window: 8192
-    capabilities: ["text_generation", "code_analysis", "task_orchestration"]
-    
-  langchain_model:
-    provider: openai
-    model_name: "gpt-4o"
-    max_tokens: 4096
-    temperature: 0.7
-    context_window: 128000
-    capabilities: ["text_generation", "reasoning", "planning"]
-    
-  dyad_model:
-    provider: ollama
-    model_name: "llama3.1:8b"
-    max_tokens: 2048
-    temperature: 0.4
-    context_window: 4096
-    capabilities: ["local_processing", "privacy_focused"]
-    
-  code_model:
-    provider: huggingface
-    model_name: "microsoft/CodeLlama-7b-Python-hf"
-    max_tokens: 2048
-    temperature: 0.2
-    context_window: 4096
-    capabilities: ["code_generation", "code_review"]
-
-# ================================
-# AGENTES PRINCIPAIS
-# ================================
 agents:
-  # Trae Agent - Orquestrador Principal
-  trae_agent:
-    name: "Trae Agent"
-    role: "Sistema de Orquestração Principal"
-    description: "Coordena todos os outros agentes e executa tarefas complexas"
-    
-    model: trae_agent_model
-    max_steps: 200
-    max_concurrent_tasks: 5
-    preferred_models: ["abacus-llm-v1", "gpt-4o"]
-    max_tokens: 4096
-    use_cases: ["orchestration", "complex_task_management"]
-    budget_limit: 0.10
-    
-    capabilities:
-      - task_orchestration
-      - agent_coordination
-      - workflow_management
-      - code_execution
-      - system_integration
-    
-    tools:
-      - bash
-      - str_replace_based_edit_tool
-      - sequentialthinking
-      - task_done
-      - file_operations
-    
-    config:
-      enable_lakeview: true
-      enable_memory: true
-      enable_planning: true
-      safety_mode: true
-    
-    integrations:
-      keycloak_url: ${KEYCLOAK_URL:-http://keycloak.default.svc.cluster.local:8080}
-      vault_addr: ${VAULT_ADDR:-http://vault.default.svc.cluster.local:8200}
-      n8n_webhook: ${N8N_WEBHOOK_URL:-http://n8n.default.svc.cluster.local:5678/webhook/}
-
-  # LangChain Agent - Processamento de Linguagem
-  langchain_agent:
-    name: "LangChain Agent"
-    role: "Especialista em Processamento de Linguagem Natural"
-    description: "Maneja tarefas complexas de NLP, reasoning e análise de texto"
-    
-    model: langchain_model
-    max_steps: 150
-    max_concurrent_tasks: 3
-    preferred_models: ["gpt-4o", "abacus-llm-v1"]
-    max_tokens: 4096
-    use_cases: ["nlp", "text_analysis", "reasoning"]
-    budget_limit: 0.05
-    
-    capabilities:
-      - text_analysis
-      - document_processing
-      - question_answering
-      - summarization
-      - translation
-    
-    tools:
-      - text_splitter
-      - embeddings
-      - vector_search
-      - document_loader
-    
-    config:
-      chunk_size: 1000
-      chunk_overlap: 200
-      embedding_model: "text-embedding-ada-002"
-      vector_store: "chroma"
-    
-    chains:
-      - retrieval_qa
-      - conversational_retrieval
-      - map_reduce_summarization
-
-  # Dyad Agent - Processamento Local
-  dyad_agent:
-    name: "Dyad Agent"
-    role: "Especialista em Processamento Local"
-    description: "Executa tarefas que requerem privacidade e processamento local"
-    
-    model: dyad_model
-    max_steps: 100
-    max_concurrent_tasks: 2
-    preferred_models: ["llama3.1:8b"]
-    max_tokens: 2048
-    use_cases: ["local_processing", "privacy_sensitive"]
-    budget_limit: 0.01
-    
-    capabilities:
-      - local_processing
-      - privacy_focused_tasks
-      - offline_operations
-      - data_sensitive_tasks
-    
-    tools:
-      - local_file_operations
-      - local_database_access
-      - encryption_tools
-    
-    config:
-      privacy_mode: true
-      data_retention_days: 7
-      local_storage_path: "/app/local_data"
-
-  # OpenHands Agent - Automação e Integração
-  openhands_agent:
-    name: "OpenHands Orchestrator"
-    role: "Especialista em Automação e Integração"
-    description: "Coordena múltiplos agentes e automatiza workflows complexos"
-    
-    model: trae_agent_model
-    max_agents: 10
-    max_parallel_tasks: 5
-    preferred_models: ["gpt-4o", "abacus-llm-v1"]
-    max_tokens: 4096
-    use_cases: ["multi_agent_orchestration", "workflow_automation"]
-    budget_limit: 0.08
-    
-    capabilities:
-      - multi_agent_coordination
-      - workflow_automation
-      - system_integration
-      - api_orchestration
-    
-    orchestration:
-      strategy: "round_robin"  # round_robin | priority | load_balanced
-      load_balancing: true
-      failover: true
-    
-    config:
-      heartbeat_interval: 30
-      health_check_timeout: 10
-      auto_scaling: true
-
-  # Code Assistant - Especialista em Código
-  code_assistant:
-    name: "Code Assistant"
-    role: "Especialista em Desenvolvimento de Código"
-    description: "Analisa, gera e revisa código em múltiplas linguagens"
-    
-    model: code_model
-    max_steps: 100
-    preferred_models: ["microsoft/CodeLlama-7b-Python-hf"]
-    max_tokens: 2048
-    use_cases: ["code_generation", "code_review", "bug_fixing"]
-    budget_limit: 0.03
-    
-    capabilities:
-      - code_generation
-      - code_review
-      - bug_detection
-      - refactoring
-      - documentation
-    
-    supported_languages:
-      - python
-      - javascript
-      - typescript
-      - yaml
-      - bash
-      - sql
-    
-    tools:
-      - static_analysis
-      - syntax_checker
-      - formatter
-      - linter
-
-  # Quick Agent - Respostas Rápidas
+  # Quick Response Agent - usa Grok Free
   quick_agent:
     name: "Quick Response Agent"
-    role: "Agente de Resposta Rápida"
-    description: "Otimizado para respostas rápidas e tarefas simples."
-    model: dyad_model
-    max_steps: 50
-    preferred_models: ["llama3.1:8b"]
-    max_tokens: 1024
-    use_cases: ["simple_queries", "quick_answers"]
-    budget_limit: 0.005
-    capabilities: ["fast_response", "basic_information_retrieval"]
-
-  # Main Agent - Orquestração Genérica
+    preferred_models: ["grok-free"]
+    max_tokens: 500
+    use_cases:
+      - "simple_qa"
+      - "basic_code_snippets"
+      - "quick_explanations"
+      - "status_checks"
+    budget_limit: 0.00  # Grátis!
+    
+  # Main Agent - usa Gemini Flash
   main_agent:
-    name: "Main Orchestration Agent"
-    role: "Orquestrador Principal (Agente Genérico)"
-    description: "Lida com a maioria das requisições genéricas e as roteia se necessário."
-    model: trae_agent_model
-    max_steps: 100
-    preferred_models: ["abacus-llm-v1", "gpt-4o"]
-    max_tokens: 4096
-    use_cases: ["general_tasks", "routing_decision"]
-    budget_limit: 0.07
-    capabilities: ["task_delegation", "general_reasoning"]
-
-  # Expert Agent - Conhecimento Profundo
+    name: "Main Processing Agent"
+    preferred_models: ["gpt-3.5-turbo"]  # Gemini Flash
+    max_tokens: 2048
+    use_cases:
+      - "medium_complexity_tasks"
+      - "code_generation"
+      - "data_analysis"
+      - "workflow_coordination"
+    budget_limit: 4.00  # $4/dia
+    
+  # Expert Agent - usa Gemini Pro
   expert_agent:
-    name: "Expert Knowledge Agent"
-    role: "Agente Especialista para Conhecimento Profundo"
-    description: "Acessa e processa informações complexas de bases de conhecimento."
-    model: langchain_model
-    max_steps: 250
-    preferred_models: ["gpt-4o"]
+    name: "Expert Reasoning Agent"
+    preferred_models: ["gpt-4"]  # Gemini Pro
     max_tokens: 8192
-    use_cases: ["deep_analysis", "knowledge_retrieval", "complex_problem_solving"]
-    budget_limit: 0.15
-    capabilities: ["knowledge_base_query", "expert_reasoning"]
+    use_cases:
+      - "complex_reasoning"
+      - "detailed_analysis"
+      - "strategic_planning"
+      - "high_priority_tasks"
+    budget_limit: 8.00  # $8/dia
 
 # ================================
-# ROTEAMENTO DE AGENTES
+# ROUTING RULES POR AGENTE
 # ================================
 agent_routing:
-  default_agent: "main_agent"
-  routing_rules:
-    - name: "Code Related Tasks"
-      pattern: "código|desenvolvimento|gerar|revisar|bug"
-      target_agent: "code_assistant"
-      priority: 10
-      fallback: "main_agent"
-      max_cost_per_request: 0.04
-    - name: "NLP and Text Analysis"
-      pattern: "analisar texto|resumir|tradução|linguagem"
-      target_agent: "langchain_agent"
-      priority: 9
-      fallback: "main_agent"
-      max_cost_per_request: 0.06
-    - name: "Privacy or Local Tasks"
-      pattern: "privacidade|local|offline|dados sensíveis"
-      target_agent: "dyad_agent"
-      priority: 8
-      fallback: "main_agent"
-      max_cost_per_request: 0.02
-    - name: "Orchestration Tasks"
-      pattern: "orquestrar|coordenar|workflow|automação"
-      target_agent: "openhands_agent"
-      priority: 7
-      fallback: "trae_agent"
-      max_cost_per_request: 0.09
-    - name: "Quick Queries"
-      pattern: "rápido|simples|o que é|breve"
-      target_agent: "quick_agent"
-      priority: 6
-      fallback: "main_agent"
-      max_cost_per_request: 0.01
-    - name: "Deep Analysis Queries"
-      pattern: "profundo|complexo|análise detalhada|especialista"
-      target_agent: "expert_agent"
-      priority: 11
-      fallback: "main_agent"
-      max_cost_per_request: 0.16
+  quick_agent:
+    primary: "grok-free"
+    fallback: ["gpt-3.5-turbo", "ollama"]
+    max_cost_per_request: 0.00
+    
+  main_agent:
+    primary: "gpt-3.5-turbo"  # Gemini Flash
+    fallback: ["grok-free", "gpt-4", "ollama"]
+    max_cost_per_request: 0.02
+    
+  expert_agent:
+    primary: "gpt-4"  # Gemini Pro
+    fallback: ["gpt-3.5-turbo", "abacus-gpt-4", "ollama"]
+    max_cost_per_request: 0.10
 
 # ================================
 # OTIMIZAÇÃO DE PROMPTS
 # ================================
 prompt_optimization:
-  enabled: true
-  strategy: "llm_enhanced" # basic_templating | llm_enhanced
+  # Prompts mais curtos para Grok
   grok_optimizations:
-    enabled: true
-    rewriting_model: "grok-1" # Or a specific Grok model
-    max_tokens_reduction: 0.20 # Attempt to reduce prompt tokens by 20%
-    techniques:
-      - "context_compression"
-      - "irrelevant_section_removal"
-      - "keyword_densification"
+    - "Use concise responses"
+    - "Limit to essential information"
+    - "Avoid verbose explanations"
+    
+  # Prompts completos para Gemini
   gemini_optimizations:
-    enabled: false
-    rewriting_model: "gemini-1.5-pro"
-    max_tokens_reduction: 0.15
-    techniques:
-      - "role_based_prompting"
-      - "example_optimization"
-      - "instruction_clarification"
-
-# ================================
-# WORKFLOWS E COORDENAÇÃO
-# ================================
-workflows:
-  # Workflow de desenvolvimento
-  development_workflow:
-    name: "Fluxo de Desenvolvimento Completo"
-    agents: [trae_agent, code_assistant, langchain_agent]
-    steps:
-      - analyze_requirements
-      - generate_code
-      - review_code
-      - test_code
-      - documentation
-    
-    coordination:
-      type: sequential
-      timeout: 1800  # 30 minutos
-      retry_on_failure: true
-
-  # Workflow de análise
-  analysis_workflow:
-    name: "Análise e Processamento de Dados"
-    agents: [langchain_agent, dyad_agent]
-    steps:
-      - data_ingestion
-      - preprocessing
-      - analysis
-      - report_generation
-    
-    coordination:
-      type: parallel
-      timeout: 900  # 15 minutos
-
-# ================================
-# SEGURANÇA E CONFORMIDADE
-# ================================
-security:
-  authentication:
-    enabled: true
-    provider: keycloak
-    realm: fullstack-ai
-    
-  authorization:
-    rbac_enabled: true
-    default_role: viewer
-    
-  data_protection:
-    encryption_at_rest: true
-    encryption_in_transit: true
-    pii_detection: true
-    data_anonymization: true
-  
-  audit:
-    enabled: true
-    log_all_interactions: true
-    retention_days: 90
-
-# ================================
-# MONITORAMENTO E ALERTAS
-# ================================
-monitoring:
-  health_checks:
-    enabled: true
-    interval: 30
-    timeout: 10
-    
-  metrics:
-    - agent_response_time
-    - agent_success_rate
-    - agent_error_rate
-    - active_conversations
-    - resource_utilization
-    
-  alerts:
-    - name: high_error_rate
-      condition: "error_rate > 0.05"
-      severity: warning
-      
-    - name: agent_unavailable
-      condition: "health_check_failed"
-      severity: critical
-      
-    - name: high_latency
-      condition: "response_time > 30s"
-      severity: warning
-
-# ================================
-# CONFIGURAÇÕES DE DESENVOLVIMENTO
-# ================================
-development:
-  debug_mode: true
-  verbose_logging: true
-  test_mode: false
-  
-  mock_services:
-    enabled: false
-    mock_llm_responses: false
-    
-  hot_reload:
-    enabled: true
-    watch_directories: ["./src/agents/", "./configs/"]
-
-# ================================
-# CONFIGURAÇÕES DE PRODUÇÃO
-# ================================
-production:
-  debug_mode: false
-  verbose_logging: false
-  
-  scaling:
-    auto_scaling: true
-    min_replicas: 2
-    max_replicas: 10
-    cpu_threshold: 70
-    memory_threshold: 80
-  
-  backup:
-    enabled: true
-    interval: "0 2 * * *"  # Daily at 2 AM
-    retention_days: 30
+    - "Provide detailed analysis"
+    - "Include reasoning steps"
+    - "Use full context window when needed"
