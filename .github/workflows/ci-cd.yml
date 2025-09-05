@@ -40,9 +40,10 @@ jobs:
       
       - name: 🧪 Run Tests
         run: |
-          # Verificar se pytest está disponível
+          # Verificar se pytest e pytest-cov estão disponíveis
           poetry run pytest --version
-          # Executar testes
+          poetry run python -c "import pytest_cov; print('pytest-cov instalado')"
+          # Executar testes com cobertura
           poetry run pytest tests/ -v
       
       - name: 🔒 Security Check
