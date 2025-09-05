@@ -1,17 +1,21 @@
 apiVersion: v2
 name: trae-agent
-description: Helm chart para deploy do Trae Agent na stack Full-Stack Industrial AI
+description: Helm chart para deploy do Trae Agent (orquestrador multiagente IA) no Kubernetes
 type: application
 version: 0.1.0
 appVersion: "1.0.0"
-keywords:
-  - ai
-  - agent
-  - trae
-  - industrial
-maintainers:
-  - name: Artur Reinhardt
-    email: arturdr@gmail.com
 home: https://github.com/arturdrr/full-stack-industrial-ai
 sources:
+  - https://github.com/arturdrr/full-stack-industrial-ai
   - https://github.com/bytedance/trae-agent
+keywords:
+  - ia
+  - trae
+  - orchestrator
+  - kubernetes
+  - ai
+  - langchain
+  - multi-agent
+maintainers:
+  - name: Artur D. Ribeiro
+    email: arturdr@gmail.com
