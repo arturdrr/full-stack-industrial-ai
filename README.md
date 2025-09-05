@@ -30,15 +30,15 @@ Esta stack full-stack industrial para desenvolvimento de aplicações baseadas e
 
 - 💻 **Terminal Moderno**: Warp CLI e Starship para alto throughput operacional
 - 🤖 **Orquestração Multiagente**: Trae Agent, LangChain (com **LangChain CLI**), Dyad, OpenHands (com **AutoGen CLI**)
-- 🧠 **Multi-LLM**: Abacus API (cloud), Ollama (local), HuggingFace (open source), e roteamento inteligente com **LiteLLM Proxy CLI**
+- 🧠 **Multi-LLM Inteligente**: Gemini Pro (principal), Grok (gratuito), Abacus (enterprise), Ollama (local) com roteamento por IA
 - 🔄 **Automação**: n8n workflows, Apache NiFi e pipelines CI/CD com GitLab CI ou GitHub Actions
 - 🛡️ **Segurança**: Keycloak (IAM), Vault (secrets), Bitwarden (passwords), e análise de código com **SonarQube Community Edition**
 - 📊 **Observabilidade**: Prometheus e Grafana com alertas em tempo real
-- 🎨 **Frontend**: Next.js, Tailwind CSS e integração com **Penpot** (open source)
+- 🎨 **Frontend Moderno**: Next.js 14+, Tailwind CSS e integração com **Penpot** (open source)
 - 🐳 **Containerização**: Docker e Kubernetes com Helm charts
 - 💾 **Persistência e Sincronização**: **Syncthing** para backup e sincronização de dados
 - 🔍 **Processamento de Linguagem**: **OpenNLP** ou spaCy para NLP avançado e **Lark** para parsing
-- 🧠 **RAG (Retrieval Augmented Generation)**: **Qdrant/ChromaDB** para armazenamento vetorial e **LightRAG** para implementação
+- 🧠 **RAG Avançado**: LightRAG + ChromaDB/Qdrant para respostas contextuais precisas
 
 ## 🏗️ Arquitetura
 
@@ -46,50 +46,32 @@ Esta stack full-stack industrial para desenvolvimento de aplicações baseadas e
 
 ```mermaid
 graph TD
-    subgraph "Frontend Layer"
+    subgraph "Frontend_Layer"
         A[Next.js + Tailwind] --> B[NextAuth + Keycloak]
-        C[Figma Integration] --> A
+        C[Penpot Integration] --> A
     end
     
-    subgraph "API Gateway"
-        D[OpenRouter] --> E[MCP Proxy]
-        F[Postman Testing] --> D
+    subgraph "AI_Orchestration"
+        D[Trae Agent] --> E[MCP Proxy]
+        F[LangChain] --> E
+        G[OpenHands] --> E
+        H[Dyad Agent] --> E
     end
     
-    subgraph "AI Orchestration"
-        G[Trae Agent] --> E
-        H[LangChain] --> E
-        I[OpenHands] --> E
-        J[Dyad Agent] --> E
-    end
-    
-    subgraph "LLM Providers"
+    subgraph "LLM_Providers"
+        E --> I[Gemini API]
+        E --> J[Grok API] 
         E --> K[Abacus API]
         E --> L[Ollama Local]
-        E --> M[HuggingFace]
     end
     
-    subgraph "Automation"
-        N[n8n Workflows] --> O[Apache NiFi]
-        P[GitHub Actions] --> Q[Kubernetes K3s]
+    subgraph "Security_Monitoring"
+        M[Keycloak IAM] --> N[Vault Secrets]
+        O[Prometheus] --> P[Grafana]
     end
     
-    subgraph "Security & Monitoring"
-        R[Keycloak IAM] --> S[Vault Secrets]
-        T[Prometheus] --> U[Grafana]
-        V[Bitwarden] --> R
-    end
-    
-    subgraph "Infrastructure"
-        Q --> W[Docker Registry]
-        Q --> X[Persistent Volumes]
-        Y[Syncthing Backup] --> X
-    end
-    
-    B --> R
-    G --> N
-    Q --> G
-    T --> Q
+    B --> M
+    D --> O
 ```
 ## 🚀 Começando
 ### Pré-requisitos
@@ -107,17 +89,24 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/arturdrr/full-stack-indu
 Para uma instalação manual detalhada, consulte nossa documentação de deployment.
 
 ### Configuração Inicial
+
 ```bash
-# 1. Configurar variáveis de ambiente
+# 1. Configurar ambiente seguramente
 cp .env.example .env.local
 # ⚠️ IMPORTANTE: Edite .env.local com suas chaves reais
 
-# 2. Verificar setup
+# 2. Verificar configuração
 ./scripts/health-check.sh
 
-# 3. Iniciar stack
+# 3. Iniciar stack completa  
 docker-compose up -d
 ```
+Serviços disponíveis:
+
+- Frontend: http://localhost:3000
+- Proxy AI: http://localhost:8081
+- Keycloak: http://localhost:8080
+- Grafana: http://localhost:3000 (admin/admin)
 ## 🛠️ Operação
 ### Agentes de IA
 Os agentes podem ser configurados via arquivo YAML:
@@ -152,6 +141,46 @@ Consulte nossa documentação para configurações avançadas:
 - API e Integrações
 - Perguntas Frequentes
 - Roadmap
+
+## 🔧 Troubleshooting
+
+### Problemas Comuns
+
+**❌ APIs não respondem:**
+```bash
+# Testar conectividade
+curl -X POST http://localhost:8081/health
+./scripts/test-apis.sh
+```
+**❌ Containers não iniciam:**
+```bash
+# Verificar logs
+docker-compose logs -f
+# Resetar ambiente
+docker-compose down -v && docker-compose up -d
+```
+**❌ Gemini API error:**
+```bash
+# Verificar chave API
+echo $GOOGLE_API_KEY
+# Testar conectividade
+curl -H "Authorization: Bearer $GOOGLE_API_KEY" \
+  https://generativelanguage.googleapis.com/v1beta/models
+```
+**❌ Roteamento não funciona:**
+```bash
+# Verificar logs do proxy
+docker logs litellm-proxy
+
+# Reiniciar proxy
+docker-compose restart litellm-proxy
+```
+### Suporte
+📧 Email: arturdr@gmail.com
+
+🐙 Issues: GitHub Issues
+
+📖 Docs: Documentação Completa
 
 ## 🔧 Manutenção
 Atualize componentes regularmente:
