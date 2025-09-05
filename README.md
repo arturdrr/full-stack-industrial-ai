@@ -24,7 +24,7 @@
 
 ## 🌟 Visão Geral
 
-Esta é uma stack full-stack industrial para desenvolvimento de aplicações baseadas em IA, combinando máxima produtividade, automação avançada e segurança corporativa. O ambiente prioriza ferramentas open source e self-hosted, oferecendo controle total sobre a infraestrutura.
+Esta stack full-stack industrial para desenvolvimento de aplicações baseadas em IA combina orquestração de modelos locais e em nuvem, automação de workflows, segurança corporativa e capacidades avançadas como Retrieval Augmented Generation (RAG) para fornecer respostas contextuais precisas. A arquitetura prioriza ferramentas open source e self-hosted, oferecendo controle total sobre a infraestrutura.
 
 ### Principais Funcionalidades
 
@@ -177,17 +177,35 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para d
 ## 📚 Links Úteis
 ### Documentação
 
-- Trae Agent
-- LangChain
-- Keycloak
-- Vault
+- [Trae Agent](https://github.com/bytedance/trae-agent)
+- [LangChain](https://python.langchain.com/docs/)
+- [Keycloak](https://www.keycloak.org/guides)
+- [Vault](https://developer.hashicorp.com/vault/docs)
+- [LiteLLM Proxy CLI](https://github.com/BerriAI/litellm)
+- [AutoGen CLI](https://microsoft.github.io/autogen/)
+- [FAISS](https://github.com/facebookresearch/faiss)
+- [Pinecone](https://docs.pinecone.io/docs/overview)
+- [LightRAG](https://github.com/lightrag/lightrag)
+- [Snyk Code AI CLI](https://docs.snyk.io/snyk-cli)
+- [Syncthing](https://docs.syncthing.net/)
+- [spaCy](https://spacy.io/usage)
+- [Lark](https://lark-parser.readthedocs.io/)
 
 ### Ferramentas
 
-- Next.js
-- Kubernetes
-- Prometheus
-- Grafana
+- [Next.js](https://nextjs.org/docs)
+- [Kubernetes](https://kubernetes.io/docs/)
+- [Prometheus](https://prometheus.io/docs/)
+- [Grafana](https://grafana.com/docs/)
+- [n8n](https://docs.n8n.io/)
+- [Apache NiFi](https://nifi.apache.org/docs.html)
+- [GitHub Actions](https://docs.github.com/en/actions)
+- [Ollama](https://ollama.ai/library)
+- [HuggingFace](https://huggingface.co/docs)
+- [Bitwarden](https://bitwarden.com/help/article/install-on-premise/)
+- [Abacus AI](https://docs.abacus.ai/)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+- [Figma](https://help.figma.com/)
 
 
 <p align="center"><strong>Desenvolvido com ❤️ para máxima produtividade em desenvolvimento de IA</strong></p>
