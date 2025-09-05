@@ -22,6 +22,11 @@
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green.svg">
 </p>
 
+![Security](https://img.shields.io/badge/security-enabled-green)
+![APIs](https://img.shields.io/badge/APIs-3_integrated-blue)
+![Cost](https://img.shields.io/badge/cost-optimized-orange)
+![AI](https://img.shields.io/badge/AI-multi_agent-purple)
+
 ## 🌟 Visão Geral
 
 Esta stack full-stack industrial para desenvolvimento de aplicações baseadas em IA combina orquestração de modelos locais e em nuvem, automação de workflows, segurança corporativa e capacidades avançadas como Retrieval Augmented Generation (RAG) para fornecer respostas contextuais precisas. A arquitetura prioriza ferramentas open source e self-hosted, oferecendo controle total sobre a infraestrutura.
