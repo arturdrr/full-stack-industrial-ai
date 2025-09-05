@@ -1,0 +1,29 @@
+groups:
+- name: safety_alerts
+  rules:
+  # Detectar loops
+  - alert: AgentLoopDetected
+    expr: increase(agent_execution_count[5m]) > 20
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Possível loop detectado - {{ $labels.agent }}"
+      
+  # Detectar alta latência (possível loop interno)
+  - alert: HighLatencyDetected  
+    expr: agent_response_time > 30
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Latência alta - possível problema interno"
+      
+  # Detectar gastos anômalos
+  - alert: AnomalousCosts
+    expr: increase(api_costs_usd[10m]) > 5.0
+    for: 1m  
+    labels:
+      severity: critical
+    annotations:
+      summary: "Gastos anômalos detectados - possível loop"
