@@ -1,46 +1,45 @@
----
-name: 🐛 Relato de Bug
-about: Use este template para reportar problemas no projeto
-title: "[BUG] "
-labels: bug
-assignees: arturdrr
+# Descrição do Pull Request
 
----
+Por favor, forneça uma descrição clara e concisa das mudanças realizadas neste PR.
 
-## 📝 Descrição do Bug
+## Motivação e Contexto
 
-Uma descrição clara e concisa do bug.
+Por que esta mudança é necessária? Qual problema ela resolve?
+Inclua links para issues relacionadas (use "Fixes #123" ou "Related to #123").
 
-## 🔄 Passos para Reproduzir
+## Tipo de Mudança
 
-1. Vá para '...'
-2. Clique em '...'
-3. Role até '...'
-4. Observe o erro
+Marque as opções aplicáveis:
 
-## 🔍 Comportamento Esperado
+- [ ] Correção de bug (mudança que corrige um problema sem alterar funcionalidades)
+- [ ] Nova funcionalidade (mudança que adiciona uma funcionalidade)
+- [ ] Mudança significativa (correção ou funcionalidade que fará com que funcionalidades existentes mudem)
+- [ ] Atualização de documentação
+- [ ] Refatoração de código (melhoria sem alterar a funcionalidade)
+- [ ] Otimização de performance
 
-O que você esperava que acontecesse.
+## Como Testar
 
-## 🚨 Comportamento Observado
+Descreva os testes que você realizou para verificar suas mudanças.
+Forneça instruções claras para que possamos reproduzir os testes.
 
-O que aconteceu na realidade.
+```bash
+# Exemplo de comandos para testar (se aplicável)
+```
 
-## 📷 Screenshots
+## Screenshots (se aplicável)
+Adicione screenshots para ajudar a explicar suas mudanças.
 
-Se aplicável, adicione screenshots para ajudar a explicar o problema.
+## Checklist
 
-## 🖥️ Ambiente
+- [ ] Meu código segue os padrões de estilo deste projeto
+- [ ] Realizei uma autorevisão do meu próprio código
+- [ ] Comentei meu código, especialmente em áreas difíceis de entender
+- [ ] Atualizei a documentação conforme necessário
+- [ ] Meus commits seguem as convenções de mensagens do projeto
+- [ ] Adicionei testes que provam que minha correção ou funcionalidade funciona
+- [ ] Todos os testes novos e existentes passaram
+- [ ] Atualizei o CHANGELOG.md, se aplicável
 
-- **Sistema Operacional:** [ex. Debian 13.0.0]
-- **Versão do Docker:** [ex. 24.0.5]
-- **Versão do Kubernetes:** [ex. 1.28]
-- **Versão do Python:** [ex. 3.10]
-
-## 📊 Logs e Contexto Adicional
-
-Adicione quaisquer logs ou contexto adicional sobre o problema aqui.
-
-## 🔍 Possível Solução
-
-Se tiver sugestões sobre como corrigir o bug, descreva-as aqui.
+## Observações Adicionais
+Adicione quaisquer outras informações que considere relevante para os revisores.
