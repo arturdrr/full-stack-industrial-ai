@@ -29,13 +29,16 @@ Esta stack full-stack industrial para desenvolvimento de aplicações baseadas e
 ### Principais Funcionalidades
 
 - 💻 **Terminal Moderno**: Warp CLI e Starship para alto throughput operacional
-- 🤖 **Orquestração Multiagente**: Trae Agent, LangChain, Dyad e OpenHands
-- 🧠 **Multi-LLM**: Abacus API (cloud), Ollama (local) e HuggingFace (open source)
-- 🔄 **Automação**: n8n workflows, Apache NiFi e pipelines CI/CD
-- 🛡️ **Segurança**: Keycloak (IAM), Vault (secrets) e Bitwarden (passwords)
+- 🤖 **Orquestração Multiagente**: Trae Agent, LangChain (com **LangChain CLI**), Dyad, OpenHands (com **AutoGen CLI**)
+- 🧠 **Multi-LLM**: Abacus API (cloud), Ollama (local), HuggingFace (open source), e roteamento inteligente com **LiteLLM Proxy CLI**
+- 🔄 **Automação**: n8n workflows, Apache NiFi e pipelines CI/CD com GitLab CI ou GitHub Actions
+- 🛡️ **Segurança**: Keycloak (IAM), Vault (secrets), Bitwarden (passwords), e análise de código com **SonarQube Community Edition**
 - 📊 **Observabilidade**: Prometheus e Grafana com alertas em tempo real
-- 🎨 **Frontend**: Next.js, Tailwind CSS e integração Figma
+- 🎨 **Frontend**: Next.js, Tailwind CSS e integração com **Penpot** (open source)
 - 🐳 **Containerização**: Docker e Kubernetes com Helm charts
+- 💾 **Persistência e Sincronização**: **Syncthing** para backup e sincronização de dados
+- 🔍 **Processamento de Linguagem**: **OpenNLP** ou spaCy para NLP avançado e **Lark** para parsing
+- 🧠 **RAG (Retrieval Augmented Generation)**: **Qdrant/ChromaDB** para armazenamento vetorial e **LightRAG** para implementação
 
 ## 🏗️ Arquitetura
 
@@ -175,37 +178,39 @@ Contribuições são bem-vindas! Por favor, leia nosso guia de contribuição pa
 Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para detalhes.
 
 ## 📚 Links Úteis
-### Documentação
 
+### Documentação
 - [Trae Agent](https://github.com/bytedance/trae-agent)
 - [LangChain](https://python.langchain.com/docs/)
 - [Keycloak](https://www.keycloak.org/guides)
 - [Vault](https://developer.hashicorp.com/vault/docs)
 - [LiteLLM Proxy CLI](https://github.com/BerriAI/litellm)
 - [AutoGen CLI](https://microsoft.github.io/autogen/)
-- [FAISS](https://github.com/facebookresearch/faiss)
-- [Pinecone](https://docs.pinecone.io/docs/overview)
+- [ChromaDB](https://docs.trychroma.com/)
+- [Qdrant](https://qdrant.tech/documentation/)
 - [LightRAG](https://github.com/lightrag/lightrag)
-- [Snyk Code AI CLI](https://docs.snyk.io/snyk-cli)
+- [SonarQube CE](https://docs.sonarqube.org/latest/)
 - [Syncthing](https://docs.syncthing.net/)
-- [spaCy](https://spacy.io/usage)
+- [OpenNLP](https://opennlp.apache.org/)
 - [Lark](https://lark-parser.readthedocs.io/)
+- [LocalAI](https://github.com/mudler/LocalAI)
 
 ### Ferramentas
-
 - [Next.js](https://nextjs.org/docs)
 - [Kubernetes](https://kubernetes.io/docs/)
 - [Prometheus](https://prometheus.io/docs/)
 - [Grafana](https://grafana.com/docs/)
 - [n8n](https://docs.n8n.io/)
 - [Apache NiFi](https://nifi.apache.org/docs.html)
-- [GitHub Actions](https://docs.github.com/en/actions)
+- [GitLab CI/CD](https://docs.gitlab.com/ee/ci/)
 - [Ollama](https://ollama.ai/library)
 - [HuggingFace](https://huggingface.co/docs)
 - [Bitwarden](https://bitwarden.com/help/article/install-on-premise/)
 - [Abacus AI](https://docs.abacus.ai/)
 - [Tailwind CSS](https://tailwindcss.com/docs)
-- [Figma](https://help.figma.com/)
+- [Penpot](https://help.penpot.app/)
+- [Langflow](https://docs.langflow.org/)
+- [Flowise](https://docs.flowiseai.com/)
 
 
 <p align="center"><strong>Desenvolvido com ❤️ para máxima produtividade em desenvolvimento de IA</strong></p>
