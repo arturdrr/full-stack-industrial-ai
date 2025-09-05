@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -16,28 +15,53 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
+
+# Test coverage
+.coverage
+coverage/
+htmlcov/
+.pytest_cache/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
 
 # Virtual environments
 venv/
 ENV/
 env/
+.env
+.venv
+.python-version
 
 # Jupyter Notebook
 .ipynb_checkpoints
 
 # Node.js
 node_modules/
-npm-debug.log
-yarn-error.log
-yarn-debug.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
 
 # Frontend builds
 .next/
 out/
 build/
+.nuxt
+dist/
+storybook-static/
+.cache/
 
 # IDE files
 .idea/
@@ -45,23 +69,41 @@ build/
 *.swp
 *.swo
 *~
+.*.sw[a-p]
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.history
 
 # OS files
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.directory
+*.lnk
 
 # Docker
 .docker/
+docker-compose.override.yml
 
 # Kubernetes
 kubeconfig
+*kubeconfig*
+.kube/
 
 # Secrets
 *.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
+.secret*
+secrets/
+credentials.json
+token.json
 
 # Logs
 logs/
@@ -73,13 +115,42 @@ yarn-error.log*
 # Terraform
 .terraform/
 *.tfstate
-*.tfstate.backup
+*.tfstate.*
+.terragrunt-cache/
+.terraform.lock.hcl
+*.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
 
 # Keys and certificates
 *.pem
 *.key
 *.crt
+*.cer
+*.der
+*.p12
+*.pfx
+*.p7b
+*.keystore
+*.jks
 
 # Temporary files
 tmp/
 temp/
+.temp/
+.tmp/
+.cache/
+
+# Package management
+poetry.lock
+yarn.lock
+package-lock.json
+
+# CI/CD
+.gitlab-ci-local/
+
+# Custom project files
+.aider*
+.env.*.local
