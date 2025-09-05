@@ -131,6 +131,10 @@ agents:
     model: trae_agent_model
     max_steps: 200
     max_concurrent_tasks: 5
+    preferred_models: ["abacus-llm-v1", "gpt-4o"]
+    max_tokens: 4096
+    use_cases: ["orchestration", "complex_task_management"]
+    budget_limit: 0.10
     
     capabilities:
       - task_orchestration
@@ -166,6 +170,10 @@ agents:
     model: langchain_model
     max_steps: 150
     max_concurrent_tasks: 3
+    preferred_models: ["gpt-4o", "abacus-llm-v1"]
+    max_tokens: 4096
+    use_cases: ["nlp", "text_analysis", "reasoning"]
+    budget_limit: 0.05
     
     capabilities:
       - text_analysis
@@ -200,6 +208,10 @@ agents:
     model: dyad_model
     max_steps: 100
     max_concurrent_tasks: 2
+    preferred_models: ["llama3.1:8b"]
+    max_tokens: 2048
+    use_cases: ["local_processing", "privacy_sensitive"]
+    budget_limit: 0.01
     
     capabilities:
       - local_processing
@@ -226,6 +238,10 @@ agents:
     model: trae_agent_model
     max_agents: 10
     max_parallel_tasks: 5
+    preferred_models: ["gpt-4o", "abacus-llm-v1"]
+    max_tokens: 4096
+    use_cases: ["multi_agent_orchestration", "workflow_automation"]
+    budget_limit: 0.08
     
     capabilities:
       - multi_agent_coordination
@@ -251,6 +267,10 @@ agents:
     
     model: code_model
     max_steps: 100
+    preferred_models: ["microsoft/CodeLlama-7b-Python-hf"]
+    max_tokens: 2048
+    use_cases: ["code_generation", "code_review", "bug_fixing"]
+    budget_limit: 0.03
     
     capabilities:
       - code_generation
@@ -272,6 +292,111 @@ agents:
       - syntax_checker
       - formatter
       - linter
+
+  # Quick Agent - Respostas Rápidas
+  quick_agent:
+    name: "Quick Response Agent"
+    role: "Agente de Resposta Rápida"
+    description: "Otimizado para respostas rápidas e tarefas simples."
+    model: dyad_model
+    max_steps: 50
+    preferred_models: ["llama3.1:8b"]
+    max_tokens: 1024
+    use_cases: ["simple_queries", "quick_answers"]
+    budget_limit: 0.005
+    capabilities: ["fast_response", "basic_information_retrieval"]
+
+  # Main Agent - Orquestração Genérica
+  main_agent:
+    name: "Main Orchestration Agent"
+    role: "Orquestrador Principal (Agente Genérico)"
+    description: "Lida com a maioria das requisições genéricas e as roteia se necessário."
+    model: trae_agent_model
+    max_steps: 100
+    preferred_models: ["abacus-llm-v1", "gpt-4o"]
+    max_tokens: 4096
+    use_cases: ["general_tasks", "routing_decision"]
+    budget_limit: 0.07
+    capabilities: ["task_delegation", "general_reasoning"]
+
+  # Expert Agent - Conhecimento Profundo
+  expert_agent:
+    name: "Expert Knowledge Agent"
+    role: "Agente Especialista para Conhecimento Profundo"
+    description: "Acessa e processa informações complexas de bases de conhecimento."
+    model: langchain_model
+    max_steps: 250
+    preferred_models: ["gpt-4o"]
+    max_tokens: 8192
+    use_cases: ["deep_analysis", "knowledge_retrieval", "complex_problem_solving"]
+    budget_limit: 0.15
+    capabilities: ["knowledge_base_query", "expert_reasoning"]
+
+# ================================
+# ROTEAMENTO DE AGENTES
+# ================================
+agent_routing:
+  default_agent: "main_agent"
+  routing_rules:
+    - name: "Code Related Tasks"
+      pattern: "código|desenvolvimento|gerar|revisar|bug"
+      target_agent: "code_assistant"
+      priority: 10
+      fallback: "main_agent"
+      max_cost_per_request: 0.04
+    - name: "NLP and Text Analysis"
+      pattern: "analisar texto|resumir|tradução|linguagem"
+      target_agent: "langchain_agent"
+      priority: 9
+      fallback: "main_agent"
+      max_cost_per_request: 0.06
+    - name: "Privacy or Local Tasks"
+      pattern: "privacidade|local|offline|dados sensíveis"
+      target_agent: "dyad_agent"
+      priority: 8
+      fallback: "main_agent"
+      max_cost_per_request: 0.02
+    - name: "Orchestration Tasks"
+      pattern: "orquestrar|coordenar|workflow|automação"
+      target_agent: "openhands_agent"
+      priority: 7
+      fallback: "trae_agent"
+      max_cost_per_request: 0.09
+    - name: "Quick Queries"
+      pattern: "rápido|simples|o que é|breve"
+      target_agent: "quick_agent"
+      priority: 6
+      fallback: "main_agent"
+      max_cost_per_request: 0.01
+    - name: "Deep Analysis Queries"
+      pattern: "profundo|complexo|análise detalhada|especialista"
+      target_agent: "expert_agent"
+      priority: 11
+      fallback: "main_agent"
+      max_cost_per_request: 0.16
+
+# ================================
+# OTIMIZAÇÃO DE PROMPTS
+# ================================
+prompt_optimization:
+  enabled: true
+  strategy: "llm_enhanced" # basic_templating | llm_enhanced
+  grok_optimizations:
+    enabled: true
+    rewriting_model: "grok-1" # Or a specific Grok model
+    max_tokens_reduction: 0.20 # Attempt to reduce prompt tokens by 20%
+    techniques:
+      - "context_compression"
+      - "irrelevant_section_removal"
+      - "keyword_densification"
+  gemini_optimizations:
+    enabled: false
+    rewriting_model: "gemini-1.5-pro"
+    max_tokens_reduction: 0.15
+    techniques:
+      - "role_based_prompting"
+      - "example_optimization"
+      - "instruction_clarification"
 
 # ================================
 # WORKFLOWS E COORDENAÇÃO
