@@ -48,7 +48,7 @@ jobs:
         run: |
           poetry install --with dev --verbose
       
-      - name: 🔍 Debug: Show pyproject.toml
+            - name: 🔍 Debug: Show pyproject.toml
         run: |
           cat pyproject.toml
       
