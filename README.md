@@ -108,11 +108,15 @@ Para uma instalação manual detalhada, consulte nossa documentação de deploym
 
 ### Configuração Inicial
 ```bash
-# Configurar variáveis de ambiente
-# Configure suas variáveis de ambiente em .env.local
+# 1. Configurar variáveis de ambiente
+cp .env.example .env.local
+# ⚠️ IMPORTANTE: Edite .env.local com suas chaves reais
 
-# Iniciar containers essenciais
-docker-compose -f docker-compose.yml up -d
+# 2. Verificar setup
+./scripts/health-check.sh
+
+# 3. Iniciar stack
+docker-compose up -d
 ```
 ## 🛠️ Operação
 ### Agentes de IA
