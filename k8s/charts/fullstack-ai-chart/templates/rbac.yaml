@@ -1,0 +1,111 @@
+# k8s/charts/fullstack-ai-chart/templates/rbac.yaml
+{{- if .Values.security.rbac.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "fullstack-ai.serviceAccountName" . }}
+  labels:
+    {{- include "fullstack-ai.labels" . | nindent 4 }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "fullstack-ai.fullname" . }}-clusterrole
+  labels:
+    {{- include "fullstack-ai.labels" . | nindent 4 }}
+rules:
+  # Allow reading of secrets for API keys
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+    resourceNames: ["{{ .Values.secrets.name }}"]
+  # Allow reading configmaps for configuration
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+  # Allow reading pods for health checks and scaling decisions
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+  # Allow reading deployments for auto-scaling
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch"]
+  # Allow reading services for service discovery
+  - apiGroups: [""]
+    resources: ["services", "endpoints"]
+    verbs: ["get", "list", "watch"]
+  # Allow creating events for logging
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+  # Allow reading metrics for custom HPA metrics
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["pods", "nodes"]
+    verbs: ["get", "list"]
+  # Custom metrics for AI workloads
+  - apiGroups: ["custom.metrics.k8s.io"]
+    resources: ["*"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "fullstack-ai.fullname" . }}-clusterrolebinding
+  labels:
+    {{- include "fullstack-ai.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "fullstack-ai.fullname" . }}-clusterrole
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "fullstack-ai.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+---
+# Additional role for AI agent coordination
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ include "fullstack-ai.fullname" . }}-ai-agent-role
+  labels:
+    {{- include "fullstack-ai.labels" . | nindent 4 }}
+rules:
+  # Allow agents to read their own configuration
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch"]
+    resourceNames: ["{{ include "fullstack-ai.fullname" . }}-agents-config"]
+  # Allow agents to update their status
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["patch", "update"]
+    resourceNames: ["{{ include "fullstack-ai.fullname" . }}-agents-status"]
+  # Allow reading other agents for coordination
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+    fieldSelectors: ["spec.nodeName"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "fullstack-ai.fullname" . }}-ai-agent-rolebinding
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "fullstack-ai.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "fullstack-ai.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ include "fullstack-ai.fullname" . }}-ai-agent-role
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

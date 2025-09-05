@@ -1,0 +1,100 @@
+# k8s/charts/fullstack-ai-chart/templates/hpa.yaml
+{{- if .Values.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "fullstack-ai.fullname" . }}-proxy-hpa
+  labels:
+    {{- include "fullstack-ai.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "fullstack-ai.fullname" . }}-proxy
+  minReplicas: {{ .Values.autoscaling.proxy.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.proxy.maxReplicas }}
+  metrics:
+    {{- if .Values.autoscaling.proxy.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.proxy.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.autoscaling.proxy.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.proxy.targetMemoryUtilizationPercentage }}
+    {{- end }}
+    # Custom metrics for AI routing
+    - type: Pods
+      pods:
+        metric:
+          name: ai_routing_requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "50"
+    - type: Pods
+      pods:
+        metric:
+          name: ai_routing_latency_p95
+        target:
+          type: AverageValue
+          averageValue: "2000m"  # 2 seconds
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+---
+{{- if .Values.autoscaling.agents }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "fullstack-ai.fullname" . }}-agents-hpa
+  labels:
+    {{- include "fullstack-ai.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "fullstack-ai.fullname" . }}-agents
+  minReplicas: {{ .Values.autoscaling.agents.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.agents.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.agents.targetCPUUtilizationPercentage }}
+    {{- if .Values.autoscaling.agents.customMetrics }}
+    {{- toYaml .Values.autoscaling.agents.customMetrics | nindent 4 }}
+    {{- end }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 120  # Slower scale up for AI agents
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 600  # Very slow scale down to preserve models
+      policies:
+      - type: Percent
+        value: 5
+        periodSeconds: 120
+{{- end }}
+{{- end }}

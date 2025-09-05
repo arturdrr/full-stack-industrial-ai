@@ -1,0 +1,127 @@
+# k8s/charts/fullstack-ai-chart/templates/network-policies.yaml
+{{- if .Values.security.networkPolicies.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "fullstack-ai.fullname" . }}-proxy-netpol
+  labels:
+    {{- include "fullstack-ai.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "fullstack-ai.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: proxy
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from ingress controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+        - namespaceSelector:
+            matchLabels:
+              name: {{ .Release.Namespace }}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/component: frontend
+      ports:
+        - protocol: TCP
+          port: 8081
+    # Allow traffic from agents
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "fullstack-ai.selectorLabels" . | nindent 14 }}
+              app.kubernetes.io/component: agents
+      ports:
+        - protocol: TCP
+          port: 8081
+  egress:
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow access to external APIs
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443  # HTTPS
+        - protocol: TCP
+          port: 80   # HTTP
+    # Allow access to Redis
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+    # Allow access to PostgreSQL
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgresql
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "fullstack-ai.fullname" . }}-agents-netpol
+  labels:
+    {{- include "fullstack-ai.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "fullstack-ai.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: agents
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from proxy
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "fullstack-ai.selectorLabels" . | nindent 14 }}
+              app.kubernetes.io/component: proxy
+      ports:
+        - protocol: TCP
+          port: 8080
+    # Allow inter-agent communication
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "fullstack-ai.selectorLabels" . | nindent 14 }}
+              app.kubernetes.io/component: agents
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow access to proxy
+    - to:
+        - podSelector:
+            matchLabels:
+              {{- include "fullstack-ai.selectorLabels" . | nindent 14 }}
+              app.kubernetes.io/component: proxy
+      ports:
+        - protocol: TCP
+          port: 8081
+    # Allow access to Ollama (local models)
+    - to:
+        - podSelector:
+            matchLabels:
+              app: ollama
+      ports:
+        - protocol: TCP
+          port: 11434
+{{- end }}
