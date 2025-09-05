@@ -56,7 +56,7 @@ O design arquitetural segue princípios de microsserviços e integração contí
 - **SonarQube Community Edition**: Ferramenta para análise estática de código, identificando bugs, vulnerabilidades e code smells.
 - **Syncthing**: Ferramenta de sincronização de arquivos ponto a ponto, usada para backups distribuídos e sincronização de dados sensíveis entre componentes.
 
-**Interações**: Todos os componentes se autenticam via Keycloak, que emite tokens JWT. O Vault fornece credenciais dinâmicas para acesso a bancos de dados e APIs externas, integrado com o Kubernetes via injector de secrets. Snyk Code AI CLI é integrado ao pipeline de CI/CD para varredura de vulnerabilidades, enquanto Syncthing garante a resiliência e disponibilidade de dados críticos.
+**Interações**: Todos os componentes se autenticam via Keycloak, que emite tokens JWT. O Vault fornece credenciais dinâmicas para acesso a bancos de dados e APIs externas, integrado com o Kubernetes via injector de secrets. SonarQube Community Edition é integrado ao pipeline de CI/CD para varredura de vulnerabilidades, enquanto Syncthing garante a resiliência e disponibilidade de dados críticos.
 
 ### 6. Monitoramento
 - **Prometheus**: Coleta de métricas em tempo real com alta disponibilidade
@@ -69,7 +69,7 @@ O design arquitetural segue princípios de microsserviços e integração contí
 - **Tailwind CSS**: Framework CSS utilitário para desenvolvimento ágil de interfaces
 - **Penpot**: Design e prototipagem colaborativa integrada ao workflow de desenvolvimento
 
-**Interações**: O frontend comunica-se com o backend via API RESTful, autenticando-se através do Keycloak. Componentes React reutilizáveis seguem a biblioteca de design definida no Figma.
+**Interações**: O frontend comunica-se com o backend via API RESTful, autenticando-se através do Keycloak. Componentes React reutilizáveis seguem a biblioteca de design definida no Penpot.
 
 ### 8. Ambiente Python
 - **Poetry**: Gerenciamento de dependências e pacotes com resolução determinística
