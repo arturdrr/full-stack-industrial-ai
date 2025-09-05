@@ -1,0 +1,369 @@
+text
+# Configuração Unificada dos Agentes de IA
+# Full-Stack Industrial AI Development Environment
+
+version: "1.0.0"
+environment: development
+
+# ================================
+# CONFIGURAÇÃO GLOBAL
+# ================================
+global:
+  max_concurrent_agents: 10
+  default_timeout: 300  # 5 minutos
+  retry_attempts: 3
+  log_level: INFO
+  
+  # Configurações de fallback
+  fallback_strategy: "round_robin"  # round_robin | priority | load_balanced
+  
+  # Métricas e observabilidade
+  metrics:
+    enabled: true
+    port: 9090
+    export_interval: 30
+
+# ================================
+# PROVEDORES DE MODELOS
+# ================================
+model_providers:
+  abacus:
+    type: cloud
+    api_key: ${ABACUS_API_KEY}
+    endpoint: "https://api.abacus.ai/llm/v1"
+    rate_limit: 100  # requests per minute
+    priority: 1
+    
+  openai:
+    type: cloud
+    api_key: ${OPENAI_API_KEY}
+    endpoint: "https://api.openai.com/v1"
+    rate_limit: 60
+    priority: 2
+    
+  huggingface:
+    type: cloud
+    api_key: ${HUGGINGFACE_API_KEY}
+    endpoint: "https://api-inference.huggingface.co"
+    rate_limit: 30
+    priority: 3
+    
+  ollama:
+    type: local
+    endpoint: "http://localhost:11434"
+    health_check: "/api/tags"
+    priority: 4
+
+# ================================
+# MODELOS DISPONÍVEIS
+# ================================
+models:
+  # Modelos para tarefas principais
+  trae_agent_model:
+    provider: abacus
+    model_name: "abacus-llm-v1"
+    max_tokens: 4096
+    temperature: 0.5
+    context_window: 8192
+    capabilities: ["text_generation", "code_analysis", "task_orchestration"]
+    
+  langchain_model:
+    provider: openai
+    model_name: "gpt-4o"
+    max_tokens: 4096
+    temperature: 0.7
+    context_window: 128000
+    capabilities: ["text_generation", "reasoning", "planning"]
+    
+  dyad_model:
+    provider: ollama
+    model_name: "llama3.1:8b"
+    max_tokens: 2048
+    temperature: 0.4
+    context_window: 4096
+    capabilities: ["local_processing", "privacy_focused"]
+    
+  code_model:
+    provider: huggingface
+    model_name: "microsoft/CodeLlama-7b-Python-hf"
+    max_tokens: 2048
+    temperature: 0.2
+    context_window: 4096
+    capabilities: ["code_generation", "code_review"]
+
+# ================================
+# AGENTES PRINCIPAIS
+# ================================
+agents:
+  # Trae Agent - Orquestrador Principal
+  trae_agent:
+    name: "Trae Agent"
+    role: "Sistema de Orquestração Principal"
+    description: "Coordena todos os outros agentes e executa tarefas complexas"
+    
+    model: trae_agent_model
+    max_steps: 200
+    max_concurrent_tasks: 5
+    
+    capabilities:
+      - task_orchestration
+      - agent_coordination
+      - workflow_management
+      - code_execution
+      - system_integration
+    
+    tools:
+      - bash
+      - str_replace_based_edit_tool
+      - sequentialthinking
+      - task_done
+      - file_operations
+    
+    config:
+      enable_lakeview: true
+      enable_memory: true
+      enable_planning: true
+      safety_mode: true
+    
+    integrations:
+      keycloak_url: ${KEYCLOAK_URL:-http://keycloak.default.svc.cluster.local:8080}
+      vault_addr: ${VAULT_ADDR:-http://vault.default.svc.cluster.local:8200}
+      n8n_webhook: ${N8N_WEBHOOK_URL:-http://n8n.default.svc.cluster.local:5678/webhook/}
+
+  # LangChain Agent - Processamento de Linguagem
+  langchain_agent:
+    name: "LangChain Agent"
+    role: "Especialista em Processamento de Linguagem Natural"
+    description: "Maneja tarefas complexas de NLP, reasoning e análise de texto"
+    
+    model: langchain_model
+    max_steps: 150
+    max_concurrent_tasks: 3
+    
+    capabilities:
+      - text_analysis
+      - document_processing
+      - question_answering
+      - summarization
+      - translation
+    
+    tools:
+      - text_splitter
+      - embeddings
+      - vector_search
+      - document_loader
+    
+    config:
+      chunk_size: 1000
+      chunk_overlap: 200
+      embedding_model: "text-embedding-ada-002"
+      vector_store: "chroma"
+    
+    chains:
+      - retrieval_qa
+      - conversational_retrieval
+      - map_reduce_summarization
+
+  # Dyad Agent - Processamento Local
+  dyad_agent:
+    name: "Dyad Agent"
+    role: "Especialista em Processamento Local"
+    description: "Executa tarefas que requerem privacidade e processamento local"
+    
+    model: dyad_model
+    max_steps: 100
+    max_concurrent_tasks: 2
+    
+    capabilities:
+      - local_processing
+      - privacy_focused_tasks
+      - offline_operations
+      - data_sensitive_tasks
+    
+    tools:
+      - local_file_operations
+      - local_database_access
+      - encryption_tools
+    
+    config:
+      privacy_mode: true
+      data_retention_days: 7
+      local_storage_path: "/app/local_data"
+
+  # OpenHands Agent - Automação e Integração
+  openhands_agent:
+    name: "OpenHands Orchestrator"
+    role: "Especialista em Automação e Integração"
+    description: "Coordena múltiplos agentes e automatiza workflows complexos"
+    
+    model: trae_agent_model
+    max_agents: 10
+    max_parallel_tasks: 5
+    
+    capabilities:
+      - multi_agent_coordination
+      - workflow_automation
+      - system_integration
+      - api_orchestration
+    
+    orchestration:
+      strategy: "round_robin"  # round_robin | priority | load_balanced
+      load_balancing: true
+      failover: true
+    
+    config:
+      heartbeat_interval: 30
+      health_check_timeout: 10
+      auto_scaling: true
+
+  # Code Assistant - Especialista em Código
+  code_assistant:
+    name: "Code Assistant"
+    role: "Especialista em Desenvolvimento de Código"
+    description: "Analisa, gera e revisa código em múltiplas linguagens"
+    
+    model: code_model
+    max_steps: 100
+    
+    capabilities:
+      - code_generation
+      - code_review
+      - bug_detection
+      - refactoring
+      - documentation
+    
+    supported_languages:
+      - python
+      - javascript
+      - typescript
+      - yaml
+      - bash
+      - sql
+    
+    tools:
+      - static_analysis
+      - syntax_checker
+      - formatter
+      - linter
+
+# ================================
+# WORKFLOWS E COORDENAÇÃO
+# ================================
+workflows:
+  # Workflow de desenvolvimento
+  development_workflow:
+    name: "Fluxo de Desenvolvimento Completo"
+    agents: [trae_agent, code_assistant, langchain_agent]
+    steps:
+      - analyze_requirements
+      - generate_code
+      - review_code
+      - test_code
+      - documentation
+    
+    coordination:
+      type: sequential
+      timeout: 1800  # 30 minutos
+      retry_on_failure: true
+
+  # Workflow de análise
+  analysis_workflow:
+    name: "Análise e Processamento de Dados"
+    agents: [langchain_agent, dyad_agent]
+    steps:
+      - data_ingestion
+      - preprocessing
+      - analysis
+      - report_generation
+    
+    coordination:
+      type: parallel
+      timeout: 900  # 15 minutos
+
+# ================================
+# SEGURANÇA E CONFORMIDADE
+# ================================
+security:
+  authentication:
+    enabled: true
+    provider: keycloak
+    realm: fullstack-ai
+    
+  authorization:
+    rbac_enabled: true
+    default_role: viewer
+    
+  data_protection:
+    encryption_at_rest: true
+    encryption_in_transit: true
+    pii_detection: true
+    data_anonymization: true
+  
+  audit:
+    enabled: true
+    log_all_interactions: true
+    retention_days: 90
+
+# ================================
+# MONITORAMENTO E ALERTAS
+# ================================
+monitoring:
+  health_checks:
+    enabled: true
+    interval: 30
+    timeout: 10
+    
+  metrics:
+    - agent_response_time
+    - agent_success_rate
+    - agent_error_rate
+    - active_conversations
+    - resource_utilization
+    
+  alerts:
+    - name: high_error_rate
+      condition: "error_rate > 0.05"
+      severity: warning
+      
+    - name: agent_unavailable
+      condition: "health_check_failed"
+      severity: critical
+      
+    - name: high_latency
+      condition: "response_time > 30s"
+      severity: warning
+
+# ================================
+# CONFIGURAÇÕES DE DESENVOLVIMENTO
+# ================================
+development:
+  debug_mode: true
+  verbose_logging: true
+  test_mode: false
+  
+  mock_services:
+    enabled: false
+    mock_llm_responses: false
+    
+  hot_reload:
+    enabled: true
+    watch_directories: ["./src/agents/", "./configs/"]
+
+# ================================
+# CONFIGURAÇÕES DE PRODUÇÃO
+# ================================
+production:
+  debug_mode: false
+  verbose_logging: false
+  
+  scaling:
+    auto_scaling: true
+    min_replicas: 2
+    max_replicas: 10
+    cpu_threshold: 70
+    memory_threshold: 80
+  
+  backup:
+    enabled: true
+    interval: "0 2 * * *"  # Daily at 2 AM
+    retention_days: 30
