@@ -1,4 +1,4 @@
-name: Full-Stack AI CI/CD
+name: 🤖 Full-Stack AI CI/CD
 
 on:
   push:
@@ -14,22 +14,37 @@ jobs:
         python-version: ["3.10", "3.11"]
     
     steps:
-      - name: Checkout Code
+      - name: 📥 Checkout Code
         uses: actions/checkout@v4
       
-      - name: Set up Python
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       
-      - name: Install Poetry
+      - name: 📦 Install Poetry
         uses: snok/install-poetry@v1
         with:
           version: 1.6.1
           virtualenvs-create: true
           virtualenvs-in-project: true
       
-      - name: Install Dependencies
+      - name: 🔧 Configure Poetry
+        run: |
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
+      
+      - name: 🧹 Clear Poetry Cache and Venv
+        run: |
+          poetry cache clear --all pypi
+          rm -rf poetry.lock
+          rm -rf .venv
+      
+      - name: 🔒 Regenerate poetry.lock
+        run: |
+          poetry lock --no-update
+      
+      - name: 📋 Install Dependencies
         run: |
           poetry install --with dev --verbose
       
