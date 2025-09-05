@@ -1,128 +1,280 @@
 # Configuração do LiteLLM Proxy para Full-Stack Industrial AI
-# Documentação: https://github.com/BerriAI/litellm
+# Documentação: https://litellm.vercel.app/docs/proxy/configs
 
-# Configuração básica do proxy
-proxy:
-  # Endereço de escuta (0.0.0.0 = todas as interfaces)
-  listen_address: "0.0.0.0"
-  # Porta de escuta
-  listen_port: 8081
-  # Número máximo de threads worker
-  num_workers: 4
-  # Timeout para conexões (segundos)
+# ================================
+# CONFIGURAÇÃO DO SERVIDOR
+# ================================
+general_settings:
+  master_key: ${LITELLM_MASTER_KEY} # Chave mestre para admin
+  database_url: ${DATABASE_URL:-"sqlite:///litellm.db"} # Persistência
+
+# Configuração do servidor
+server:
+  port: 8081
+  host: "0.0.0.0"
+  workers: 4
   timeout: 300
 
-# Configuração de modelos
-models:
-  # Configuração do Abacus API (cloud)
-  abacus:
-    # Endpoint do serviço
-    endpoint: "https://api.abacus.ai/llm/v1"
-    # Chave de API (substituir pelo valor real ou referência a secret)
-    api_key: ${ABACUS_API_KEY}
-    # Provedor do modelo
-    provider: "abacus"
-    # Parâmetros adicionais
-    params:
-      max_tokens: 4096
-      temperature: 0.5
-  
-  # Configuração do Ollama (local)
-  ollama:
-    # Endpoint do serviço (assumindo que está sendo executado localmente)
-    endpoint: "http://ollama.default.svc.cluster.local:11434"
-    # Provedor do modelo
-    provider: "ollama"
-    # Parâmetros adicionais
-    params:
-      max_tokens: 4096
-      temperature: 0.7
-      # Mapeamento de modelos específicos
-      models:
-        - name: "llama3"
-          path: "/api/generate"
-        - name: "mistral"
-          path: "/api/generate"
-        - name: "gemma"
-          path: "/api/generate"
-  
-  # Configuração do HuggingFace (opcional/fallback)
-  huggingface:
-    # Endpoint do serviço
-    endpoint: "https://api.huggingface.co/models"
-    # Chave de API (substituir pelo valor real ou referência a secret)
-    api_key: ${HUGGINGFACE_API_KEY}
-    # Provedor do modelo
-    provider: "huggingface"
-    # Parâmetros adicionais
-    params:
-      max_tokens: 2048
-      temperature: 0.8
-  
-  # LocalAI (alternativa open source)
-  localai:
-    # Endpoint do serviço LocalAI
-    endpoint: "http://localai.default.svc.cluster.local:8080"
-    # Provedor
-    provider: "localai"
-    # Parâmetros
-    params:
-      max_tokens: 2048
-      temperature: 0.7
+# Configurações de segurança
+security:
+  disable_spend_logs: false
+  disable_master_key_return: true
+  enforce_user_param: true
 
-# Configuração de roteamento/fallback
-fallback_order:
-  # Ordem de fallback quando um modelo falha
-  - abacus     # Primeira opção (cloud)
-  - ollama     # Segunda opção (local)
-  - localai    # Terceira opção (open source local)
-  - huggingface  # Última opção (fallback externo)
+# ================================
+# MODELOS E PROVEDORES
+# ================================
+model_list:
 
-# Configuração de caching
+  # 🌟 ABACUS API (Principal - Cloud)
+  - model_name: "gpt-4"
+    litellm_params:
+      model: "abacus/gpt-4"
+      api_key: ${ABACUS_API_KEY}
+      api_base: "https://api.abacus.ai/llm/v1"
+    model_info:
+      mode: "chat"
+      input_cost_per_token: 0.00003
+      output_cost_per_token: 0.00006
+      max_tokens: 4096
+      supports_function_calling: true
+
+  - model_name: "gpt-3.5-turbo"
+    litellm_params:
+      model: "abacus/gpt-3.5-turbo"
+      api_key: ${ABACUS_API_KEY}
+      api_base: "https://api.abacus.ai/llm/v1"
+    model_info:
+      mode: "chat"
+      input_cost_per_token: 0.000001
+      output_cost_per_token: 0.000002
+      max_tokens: 4096
+
+  # 🏠 OLLAMA (Local - Privacidade)
+  - model_name: "llama3"
+    litellm_params:
+      model: "ollama/llama3"
+      api_base: "http://ollama.default.svc.cluster.local:11434"
+    model_info:
+      mode: "chat"
+      max_tokens: 4096
+      supports_streaming: true
+
+  - model_name: "mistral"
+    litellm_params:
+      model: "ollama/mistral"
+      api_base: "http://ollama.default.svc.cluster.local:11434"
+    model_info:
+      mode: "chat"
+      max_tokens: 4096
+
+  # 🤗 HUGGINGFACE (Open Source)
+  - model_name: "codellama"
+    litellm_params:
+      model: "huggingface/microsoft/CodeLlama-7b-Python-hf"
+      api_key: ${HUGGINGFACE_API_KEY}
+    model_info:
+      mode: "chat"
+      max_tokens: 2048
+      supports_code_completion: true
+
+  # 🔧 LOCALAI (Self-hosted)
+  - model_name: "localai-gpt"
+    litellm_params:
+      model: "localai/gpt-3.5-turbo"
+      api_base: "http://localai.default.svc.cluster.local:8080/v1"
+    model_info:
+      mode: "chat"
+      max_tokens: 4096
+
+# ================================
+# ROTAMENTO E FALLBACK
+# ================================
+router_settings:
+  routing_strategy: "latency-based-routing" # ou "simple-shuffle"
+  num_retries: 3
+  timeout: 30
+
+  # Configuração de fallback
+  fallbacks:
+    - "gpt-4": ["gpt-3.5-turbo", "llama3", "mistral"]
+    - "gpt-3.5-turbo": ["llama3", "mistral", "localai-gpt"]
+    - "llama3": ["mistral", "localai-gpt"]
+
+  # Health checks automáticos
+  health_check_interval: 30
+
+  # Load balancing
+  load_balancing:
+    cooldown_time: 5
+    allowed_fails: 3
+
+# ================================
+# RATE LIMITING
+# ================================
+litellm_settings:
+
+  # Rate limiting por usuário/chave
+  max_budget: 100.0 # USD por mês
+  budget_duration: "1mo"
+
+  # Limites por modelo
+  rpm: 600 # Requests per minute
+  tpm: 60000 # Tokens per minute
+
+  # Configurações específicas por provedor
+  redis_host: ${REDIS_HOST:-"redis.default.svc.cluster.local"}
+  redis_port: 6379
+  redis_password: ${REDIS_PASSWORD}
+
+# ================================
+# CACHING
+# ================================
 cache:
-  # Habilitar cache
-  enabled: true
-  # Tempo de vida do cache em segundos
-  ttl: 3600
-  # Tamanho máximo do cache
-  max_size: 1000
+  type: "redis" # ou "s3", "local"
+  host: ${REDIS_HOST:-"redis.default.svc.cluster.local"}
+  port: 6379
+  password: ${REDIS_PASSWORD}
 
-# Configuração de rate limiting
-rate_limiting:
-  # Limitar número de requisições
-  enabled: true
-  # Requisições por minuto
-  rpm: 600
-  # Implementar estratégia de backoff
-  backoff:
-    enabled: true
-    initial_delay: 1
-    max_delay: 30
-    factor: 2
+  # Configurações de cache
+  ttl: 3600 # 1 hora
+  namespace: "litellm_cache"
 
-# Configuração de logging
+  # Cache semântico
+  semantic_cache:
+    similarity_threshold: 0.8
+    cache_kwargs:
+      semantic_cache: true
+
+# ================================
+# LOGGING E OBSERVABILIDADE
+# ================================
 logging:
-  # Nível de logging
-  level: "info"
-  # Formatar logs em JSON
-  json_format: true
-  # Log detalhado de tokens
-  token_logging: false
+  success_callback: ["prometheus", "langfuse"]
+  failure_callback: ["prometheus"]
 
-# Integração com monitoramento
-monitoring:
-  # Endpoint para métricas Prometheus
-  prometheus:
-    enabled: true
-    endpoint: "/metrics"
+  callbacks:
+    prometheus:
+      service_name: "litellm_proxy"
 
-# Configurações avançadas
-advanced:
-  # Comprimir respostas
-  compression: true
-  # Máximo de tokens por requisição
-  max_tokens_per_request: 8192
-  # Servidor health check
-  health_check:
+    langfuse:
+      public_key: ${LANGFUSE_PUBLIC_KEY}
+      secret_key: ${LANGFUSE_SECRET_KEY}
+      host: ${LANGFUSE_HOST:-"http://langfuse.default.svc.cluster.local:3000"}
+
+  # Configurações de log
+  environment_variables:
+    LITELLM_LOG: "INFO"
+    LITELLM_REQUEST_TIMEOUT: 300
+    LITELLM_NUM_RETRIES: 3
+    LITELLM_DEBUG: false
+
+# ================================
+# SEGURANÇA E AUTENTICAÇÃO
+# ================================
+security:
+  user_api_key_auth:
+
+    # Chaves de usuário (geradas automaticamente)
+    user_email_address: ${ADMIN_EMAIL:-"admin@example.com"}
+
+  # Configurações de autenticação
+  auth_strategy: "user_id_key_auth" # ou "api_key_auth"
+
+  # Rate limiting por usuário
+  rate_limiting:
+    user_max_budget: 50.0
+    user_budget_duration: "1mo"
+
+# ================================
+# INTEGRAÇÕES
+# ================================
+integrations:
+
+  # Slack para alertas
+  slack:
+    webhook_url: ${SLACK_WEBHOOK_URL}
+
+  # Webhook para eventos
+  webhooks:
+    - event: "spend_tracked"
+      url: "${WEBHOOK_URL}/spend"
+    - event: "key_created"
+      url: "${WEBHOOK_URL}/keys"
+
+# ================================
+# CONFIGURAÇÕES ESPECÍFICAS
+# ================================
+model_specific_settings:
+
+  # Configurações específicas para código
+  codellama:
+    temperature: 0.1
+    max_tokens: 2048
+    stop: ["```", "\n\n"]
+
+  # Configurações para chat geral
+  gpt-4:
+    temperature: 0.7
+    max_tokens: 4096
+    presence_penalty: 0.1
+
+  # Configurações locais (mais liberdade)
+  llama3:
+    temperature: 0.8
+    max_tokens: 4096
+    top_p: 0.9
+
+# ================================
+# ALERTAS E MONITORAMENTO
+# ================================
+alerting:
+
+  # Alertas de custo
+  budget_alerts:
+    - threshold: 80 # 80% do orçamento
+      channels: ["slack", "email"]
+    - threshold: 95 # 95% do orçamento
+      channels: ["slack", "email", "webhook"]
+
+  # Alertas de performance
+  latency_alerts:
+    threshold: 30 # segundos
+    channels: ["slack"]
+
+  # Alertas de falha
+  error_rate_alerts:
+    threshold: 5 # 5% de erro
+    window: "5m"
+    channels: ["slack", "webhook"]
+
+# ================================
+# DESENVOLVIMENTO/DEBUG
+# ================================
+development:
+  enable_preview_features: true
+  detailed_debug_logs: false
+  mock_response_mode: false
+
+  # Métricas detalhadas
+  detailed_logging: true
+  log_raw_request_response: false # ⚠️ Desabilitar em prod
+
+# ================================
+# CONFIGURAÇÕES DE PRODUÇÃO
+# ================================
+production:
+  debug_mode: false
+  verbose_logging: false
+  
+  scaling:
+    auto_scaling: true
+    min_replicas: 2
+    max_replicas: 10
+    cpu_threshold: 70
+    memory_threshold: 80
+  
+  backup:
     enabled: true
-    endpoint: "/health"
+    interval: "0 2 * * *"  # Daily at 2 AM
+    retention_days: 30
