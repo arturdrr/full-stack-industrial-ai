@@ -1,24 +1,36 @@
-# Política de Segurança
+# Política de Segurança (SECURITY.md)
 
-A segurança é fundamental para nós. Se você descobrir uma vulnerabilidade de segurança em nosso projeto, agradecemos sua ajuda em nos reportar de forma responsável.
+## Reportando uma Vulnerabilidade
 
-## Como Reportar uma Vulnerabilidade
+Se você encontrar uma vulnerabilidade de segurança neste projeto, por favor reporte-a com responsabilidade, enviando um email para:
 
-Para reportar uma vulnerabilidade de segurança, por favor, envie um e-mail para:
+[arturdr@gmail.com](mailto:arturdr@gmail.com)
 
-[security@example.com](mailto:security@example.com)
+Por favor inclua as seguintes informações:
 
-Por favor, inclua o máximo de detalhes possível sobre a vulnerabilidade, incluindo:
+- Descrição detalhada da vulnerabilidade  
+- Passos para reproduzir o problema  
+- Impacto potencial da vulnerabilidade  
+- Qualquer mitigação ou solução temporária identificada
 
-*   Uma descrição clara da vulnerabilidade.
-*   Os passos para reproduzir a vulnerabilidade.
-*   O impacto potencial da vulnerabilidade.
-*   Qualquer código ou script que possa ajudar na reprodução (se aplicável).
+## Processo de Resposta
 
-Nós nos comprometemos a responder a todos os relatórios de segurança em tempo hábil.
+Nos comprometemos com os seguintes tempos de resposta:
 
-## Divulgação Responsável
+- Resposta inicial: dentro de 48 horas após o reporte  
+- Confirmação e análise: dentro de 5 dias úteis  
+- Correção e mitigação: prazo variável conforme complexidade
 
-Pedimos que você siga um modelo de divulgação responsável. Por favor, não divulgue publicamente detalhes da vulnerabilidade até que tenhamos tido a oportunidade de investigar e corrigir o problema.
+## Política de Divulgação
 
-Agradecemos sua cooperação em manter nosso projeto seguro.
+- Após validação, comunicaremos ao reportante as ações tomadas.  
+- Lançaremos correções para todas versões suportadas.  
+- Divulgação pública será feita com a aprovação do reportante ou de acordo com as melhores práticas de segurança.
+
+## Escopo
+
+Esta política se aplica à versão mais recente da branch principal e ao software oficialmente distribuído.
+
+## Obrigado!
+
+Sua colaboração é fundamental para manter este projeto e sua comunidade seguros.
