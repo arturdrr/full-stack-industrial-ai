@@ -6,29 +6,131 @@ metadata:
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
   name: trae-agent-role
-  namespace: default
 rules:
-- apiGroups: [""]
-  resources: ["pods", "pods/log", "services"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: [""]
-  resources: ["configmaps"]
-  verbs: ["get", "list"]
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
   name: trae-agent-rolebinding
-  namespace: default
 subjects:
 - kind: ServiceAccount
   name: trae-agent-sa
   namespace: default
 roleRef:
-  kind: Role
+  kind: ClusterRole
+  name: trae-agent-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Service Accounts para outros componentes
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: langchain-sa
+  namespace: default
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: openhands-sa
+  namespace: default
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dyad-sa
+  namespace: default
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: n8n-sa
+  namespace: default
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-sa
+  namespace: default
+
+---
+# ClusterRoleBinding para os outros componentes
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: langchain-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: langchain-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: trae-agent-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: openhands-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: openhands-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: trae-agent-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dyad-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: dyad-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: trae-agent-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: n8n-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: n8n-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: trae-agent-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: prometheus-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
   name: trae-agent-role
   apiGroup: rbac.authorization.k8s.io
