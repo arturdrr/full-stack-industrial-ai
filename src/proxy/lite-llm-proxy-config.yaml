@@ -1,197 +1,158 @@
 # ================================
-# CONFIGURAÇÃO MCP
+# ROTEAMENTO PERFEITO GROK + GEMINI
 # ================================
-mcp_settings:
-  # Servidor MCP principal
-  mcp_server:
-    enabled: true
-    host: "0.0.0.0"
-    port: 8082
-    protocol: "stdio"  # ou "http", "sse"
-    
-  # Tools MCP expostos
-  tools:
-    - name: "query_agent"
-      description: "Executa query em qualquer agente da stack"
-      parameters:
-        agent: { type: "string", enum: ["trae", "langchain", "dyad", "openhands"] }
-        query: { type: "string" }
-        
-    - name: "get_metrics"
-      description: "Obtém métricas de performance dos agentes"
-      parameters:
-        timeframe: { type: "string", default: "1h" }
-        
-    - name: "manage_workflow"
-      description: "Gerencia workflows multi-agente"
-      parameters:
-        action: { type: "string", enum: ["start", "stop", "status"] }
-        workflow_id: { type: "string" }
+general_settings:
+  master_key: ${LITELLM_MASTER_KEY} # Chave mestre para admin
+  port: 8081
+  database_url: "sqlite:///cost_tracking.db"
 
-  # Resources MCP
-  resources:
-    - name: "agent_configs"
-      description: "Configurações dos agentes"
-      uri: "config://agents/*"
+model_list:
+  # 🚀 Grok Free Tier (Prioridade para queries simples)
+  - model_name: "grok-free"
+    litellm_params:
+      model: "grok/grok-beta"
+      api_key: ${GROK_API_KEY}
+      api_base: "https://api.x.ai/v1"
+    model_info:
+      mode: "chat"
+      max_tokens: 2048
+      input_cost_per_token: 0  # Free tier
+      output_cost_per_token: 0  # Free tier
+      max_requests_per_day: 10000  # Free limit
       
-    - name: "execution_logs"
-      description: "Logs de execução dos agentes"
-      uri: "logs://agents/*"
+  # 🧠 Gemini Pro (Principal para workload)
+  - model_name: "gpt-4"
+    litellm_params:
+      model: "gemini/gemini-1.5-pro"
+      api_key: ${GOOGLE_API_KEY}
+    model_info:
+      mode: "chat"
+      max_tokens: 8192
+      input_cost_per_token: 0.00000125  # $1.25/1M
+      output_cost_per_token: 0.000005   # $5.00/1M
+      context_window: 1000000
       
-    - name: "metrics_data"
-      description: "Dados de métricas em tempo real"
-      uri: "metrics://prometheus/*"
-
-  # Prompts MCP reutilizáveis
-  prompts:
-    - name: "orchestrate_multi_agent"
-      description: "Template para orquestração multi-agente"
-      template: |
-        Você é um orquestrador de agentes IA. Sua tarefa é:
-        1. Analisar a requisição: {query}
-        2. Identificar agentes necessários: {available_agents}
-        3. Definir sequência de execução
-        4. Coordenar execução e coletar resultados
-        
-    - name: "agent_handoff"
-      description: "Template para transferência entre agentes"
-      template: |
-        Transferindo contexto de {source_agent} para {target_agent}:
-        Contexto: {context}
-        Objetivo: {objective}
-        Estado atual: {current_state}
-
-# ================================
-# ORCHESTRAÇÃO MCP
-# ================================
-mcp_orchestration:
-  # Descoberta automática de agentes
-  auto_discovery:
-    enabled: true
-    scan_interval: 30
-    endpoints:
-      - "http://trae-agent.default.svc.cluster.local:8080/mcp"
-      - "http://langchain-agent.default.svc.cluster.local:8081/mcp"
-      - "http://openhands.default.svc.cluster.local:8082/mcp"
-  
-  # Roteamento inteligente
-  routing:
-    strategy: "capability_based"  # ou "round_robin", "load_balanced"
-    capability_mapping:
-      code_generation: ["trae", "openhands"]
-      text_analysis: ["langchain", "trae"]
-      local_processing: ["dyad"]
-      workflow_orchestration: ["openhands", "trae"]
-  
-  # Coordenação multi-agente
-  coordination:
-    max_concurrent_workflows: 10
-    workflow_timeout: 1800  # 30 minutos
-    handoff_timeout: 30     # 30 segundos
-    
-# ================================
-# BRIDGING MCP <-> LITELLM
-# ================================
-mcp_bridge:
-  # Converter calls LiteLLM para MCP
-  litellm_to_mcp:
-    enabled: true
-    tool_mapping:
-      # Mapear funções LiteLLM para tools MCP
-      "function_call": "mcp_tool_call"
-      "get_completion": "mcp_completion"
+  - model_name: "gpt-3.5-turbo"
+    litellm_params:
+      model: "gemini/gemini-1.5-flash"
+      api_key: ${GOOGLE_API_KEY}
+    model_info:
+      mode: "chat"
+      max_tokens: 4096
+      input_cost_per_token: 0.0000001875  # $0.1875/1M
+      output_cost_per_token: 0.00000075   # $0.75/1M
       
-  # Converter responses MCP para LiteLLM
-  mcp_to_litellm:
-    enabled: true
-    response_format: "openai_compatible"
-    
-  # Middleware para conversão
-  middleware:
-    - name: "context_propagation"
-      enabled: true
-    - name: "error_handling"
-      enabled: true
-    - name: "metrics_collection"
-      enabled: true
+  # ⚡ Abacus Backup (Enterprise quando necessário)
+  - model_name: "abacus-gpt-4"
+    litellm_params:
+      model: "abacus/gpt-4"
+      api_key: ${ABACUS_API_KEY}
+      api_base: "https://api.abacus.ai/llm/v1"
+    model_info:
+      mode: "chat"
+      enabled: false  # Ativar quando necessário
 
 # ================================
-# MCP SERVERS CONFIGURATION
+# ROTEAMENTO INTELIGENTE
 # ================================
-mcp_servers:
-  # Core Infrastructure
-  git_github:
-    transport: "stdio"
-    command: "npx"
-    args: ["@anthropic/mcp-git"]
-    env:
-      GITHUB_TOKEN: ${GITHUB_TOKEN}
-      GITHUB_REPO: "arturdrr/full-stack-industrial-ai"
+router_settings:
+  routing_strategy: "cost-optimized-routing"
   
-  docker_orchestration:
-    transport: "stdio" 
-    command: "docker-mcp-server"
-    env:
-      DOCKER_HOST: "unix:///var/run/docker.sock"
+  # Regras de roteamento baseadas em complexidade
+  routing_pattern:
+    # Queries simples → Grok Free
+    - condition: |
+        (num_tokens <= 500 AND 
+         complexity_score <= 0.3 AND
+         query_type IN ['simple_qa', 'basic_code', 'quick_response'])
+      route_to: "grok-free"
+      priority: 1
+      reason: "simple_query_free_tier"
+      
+    # Queries médias → Gemini Flash
+    - condition: |
+        (num_tokens > 500 AND num_tokens <= 2000 AND
+         complexity_score <= 0.7)
+      route_to: "gpt-3.5-turbo"  # Gemini Flash
+      priority: 2
+      reason: "medium_complexity_cost_effective"
+      
+    # Queries complexas → Gemini Pro
+    - condition: |
+        (num_tokens > 2000 OR 
+         complexity_score > 0.7 OR
+         requires_reasoning OR
+         priority == 'high')
+      route_to: "gpt-4"  # Gemini Pro
+      priority: 3
+      reason: "complex_reasoning_required"
   
-  # AI/ML Specific
-  multi_agent_orchestrator:
-    transport: "http"
-    endpoint: "http://mcp-agent.default.svc.cluster.local:8090"
-    headers:
-      Authorization: "Bearer ${MCP_AGENT_TOKEN}"
-  
-  # Database Access
-  database_manager:
-    transport: "stdio"
-    command: "python"
-    args: ["-m", "mcp_database"]
-    env:
-      DATABASE_URL: ${DATABASE_URL}
-      REDIS_URL: ${REDIS_URL}
-  
-  # Observability
-  prometheus_grafana:
-    transport: "http"
-    endpoint: "http://prometheus.default.svc.cluster.local:9090/mcp"
-    
-  # Enterprise Integration  
-  slack_notifications:
-    transport: "stdio"
-    command: "mcp-slack-server"
-    env:
-      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
-      SLACK_SIGNING_SECRET: ${SLACK_SIGNING_SECRET}
-  
-  keycloak_auth:
-    transport: "http"
-    endpoint: "http://keycloak.default.svc.cluster.local:8080/mcp"
-    headers:
-      Authorization: "Bearer ${KEYCLOAK_ADMIN_TOKEN}"
+  # Fallback em cascata
+  fallbacks:
+    - "grok-free": ["gpt-3.5-turbo", "ollama/llama3.1:8b"]
+    - "gpt-3.5-turbo": ["gpt-4", "grok-free", "ollama/llama3.1:8b"]
+    - "gpt-4": ["gpt-3.5-turbo", "abacus-gpt-4", "ollama/llama3.1:8b"]
 
-# Tool routing per agent
-agent_mcp_mapping:
-  trae_agent:
-    allowed_mcps: 
-      - git_github
-      - docker_orchestration
-      - multi_agent_orchestrator
-      - database_manager
-      - observability
+# ================================
+# RATE LIMITING OTIMIZADO
+# ================================
+rate_limits:
+  # Grok Free Tier - Conservador
+  grok_limits:
+    requests_per_minute: 15      # Dentro do limite gratuito
+    requests_per_hour: 100       # Espalhar ao longo do dia
+    tokens_per_minute: 7500      # Evitar burst
+    daily_request_limit: 2000    # Margem de segurança
     
-  langchain_agent:
-    allowed_mcps:
-      - database_manager
-      - observability
-      - slack_notifications
+  # Gemini Pro - Agressivo
+  gemini_limits:
+    requests_per_minute: 60      # Usar limite pro
+    tokens_per_minute: 50000     # Alto throughput
+    daily_cost_limit: 15.00      # $15/dia max
+
+# ================================
+# CACHE INTELIGENTE
+# ================================
+cache:
+  type: "redis"
+  redis_url: ${REDIS_URL:-"redis://localhost:6379"}
+  
+  # Cache diferenciado por provider
+  cache_policies:
+    grok_free:
+      ttl: 86400      # 24h - economizar requests gratuitos
+      similarity: 0.95 # Cache muito agressivo
+      
+    gemini_flash:
+      ttl: 3600       # 1h - balancear custo/freshness
+      similarity: 0.88
+      
+    gemini_pro:
+      ttl: 1800       # 30min - dados mais frescos
+      similarity: 0.85
+
+# ================================
+# MONITORAMENTO DE CUSTOS
+# ================================
+budget_manager:
+  daily_budget: 12.00  # $12/dia total
+  
+  # Distribuição otimizada
+  provider_budgets:
+    grok: 0.00        # Grátis!
+    gemini_flash: 4.00 # $4/dia - queries médias
+    gemini_pro: 8.00   # $8/dia - queries complexas
     
-  openhands_orchestrator:
-    allowed_mcps:
-      - git_github
-      - docker_orchestration
-      - multi_agent_orchestrator
-      - keycloak_auth
-    
-  dyad_agent:
-    allowed_mcps:
-      - database_manager  # Apenas local/privado
+  # Alertas escalonados
+  cost_alerts:
+    - threshold: 6.00   # 50% budget
+      action: "notify_slack"
+      message: "50% daily budget reached"
+      
+    - threshold: 9.00   # 75% budget  
+      action: "throttle_non_essential"
+      message: "Throttling non-essential requests"
+      
+    - threshold: 11.00  # 90% budget
+      action: "grok_only_mode"
+      message: "Switching to Grok-only mode"
