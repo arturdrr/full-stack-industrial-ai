@@ -33,13 +33,15 @@ O design arquitetural segue princípios de microsserviços e integração contí
 - **Abacus API**: Serviço cloud para modelos de IA de alta performance, oferecendo modelos de vários tamanhos
 - **Ollama**: Execução local de modelos para privacidade e controle de custos, com suporte a modelos quantizados
 - **HuggingFace**: Acesso a modelos open source com diversidade de capacidades específicas
-- **FAISS ou Pinecone**: Bancos de dados vetoriais para Retrieval-Augmented Generation (RAG), permitindo buscar informações relevantes para LLMs.
+- **Qdrant/ChromaDB**: Bancos de dados vetoriais para Retrieval-Augmented Generation (RAG), permitindo buscar informações relevantes para LLMs.
 - **LightRAG**: Ferramenta otimizada para a construção de sistemas RAG leves e eficientes, garantindo respostas contextuais.
 
 **Interações**: Comunicação via API REST padronizada, com sistema de fallback automático entre provedores. Os modelos são invocados pelos agentes através do MCP, que gerencia o contexto da conversa e aplica políticas de rate-limiting e retry. Sistemas RAG, como FAISS/Pinecone e LightRAG, são utilizados para enriquecer as consultas aos LLMs.
 
 ### 4. Automação e Orquestração de Workflows
 - **n8n**: Plataforma low-code para automação de workflows, permitindo integração com mais de 200 serviços
+- **Langflow**: Interface visual para prototipagem e desenvolvimento de aplicações LLM.
+- **Flowise**: Ferramenta de design visual para construir e implantar aplicativos LLM personalizados.
 - **Apache NiFi**: Processamento e integração de dados para pipelines complexos com alta escala
 - **GitHub Actions**: CI/CD automatizado para testes, builds e deploy
 - **Kubernetes**: Orquestração de containers para escalonamento e gerenciamento de aplicações
@@ -50,7 +52,7 @@ O design arquitetural segue princípios de microsserviços e integração contí
 - **Keycloak**: Gerenciamento de identidade e acesso (IAM) centralizado com suporte a OIDC/SAML
 - **Vault**: Gerenciamento seguro de segredos, permitindo rotação automática de credenciais
 - **Bitwarden**: Gerenciamento de senhas self-hosted para controle total dos dados
-- **Snyk Code AI CLI**: Ferramenta de linha de comando para análise de segurança de código assistida por IA, identificando vulnerabilidades em tempo real.
+- **SonarQube Community Edition**: Ferramenta para análise estática de código, identificando bugs, vulnerabilidades e code smells.
 - **Syncthing**: Ferramenta de sincronização de arquivos ponto a ponto, usada para backups distribuídos e sincronização de dados sensíveis entre componentes.
 
 **Interações**: Todos os componentes se autenticam via Keycloak, que emite tokens JWT. O Vault fornece credenciais dinâmicas para acesso a bancos de dados e APIs externas, integrado com o Kubernetes via injector de secrets. Snyk Code AI CLI é integrado ao pipeline de CI/CD para varredura de vulnerabilidades, enquanto Syncthing garante a resiliência e disponibilidade de dados críticos.
@@ -64,14 +66,14 @@ O design arquitetural segue princípios de microsserviços e integração contí
 ### 7. Frontend
 - **Next.js**: Framework React para frontend com SSR/SSG para performance otimizada
 - **Tailwind CSS**: Framework CSS utilitário para desenvolvimento ágil de interfaces
-- **Figma**: Design e prototipagem colaborativa integrada ao workflow de desenvolvimento
+- **Penpot**: Design e prototipagem colaborativa integrada ao workflow de desenvolvimento
 
 **Interações**: O frontend comunica-se com o backend via API RESTful, autenticando-se através do Keycloak. Componentes React reutilizáveis seguem a biblioteca de design definida no Figma.
 
 ### 8. Ambiente Python
 - **Poetry**: Gerenciamento de dependências e pacotes com resolução determinística
 - **Conda**: Ambientes para computação científica com bibliotecas nativas otimizadas
-- **spaCy**: Biblioteca avançada para Processamento de Linguagem Natural (NLP), usada para tarefas como tokenização, reconhecimento de entidades e análise sintática.
+- **OpenNLP ou spaCy**: Bibliotecas avançadas para Processamento de Linguagem Natural (NLP), usadas para tarefas como tokenização, reconhecimento de entidades e análise sintática.
 - **Lark**: Ferramenta de análise sintática (parser) versátil, útil para criar gramáticas e processar dados textuais estruturados.
 
 **Interações**: Poetry gerencia as dependências dos agentes IA, enquanto Conda é utilizado para ambientes específicos de ciência de dados e computação intensiva. spaCy e Lark são integrados aos agentes para capacidades avançadas de NLP e interpretação de comandos ou dados textuais.
