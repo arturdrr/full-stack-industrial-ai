@@ -1,6 +1,8 @@
 # 🏗️ Arquitetura da Stack Full-Stack Industrial AI
 
-Este documento descreve as camadas, componentes e integrações que compõem a stack.
+Este documento detalha a arquitetura da nossa stack Full-Stack Industrial AI, uma plataforma robusta e escalável projetada para integrar inteligência artificial em ambientes industriais. A plataforma visa automatizar tarefas, otimizar processos e fornecer insights preditivos através de uma combinação de agentes de IA, modelos avançados e uma infraestrutura de orquestração de ponta.
+
+A visão geral da arquitetura é dividida em várias camadas funcionais, cada uma com componentes específicos que colaboram para garantir um fluxo de dados eficiente e seguro, desde a interação do usuário até a execução de modelos de IA e a automação de workflows.
 
 ## 📚 Camadas
 
