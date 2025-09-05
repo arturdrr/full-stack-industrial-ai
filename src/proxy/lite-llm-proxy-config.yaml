@@ -1,0 +1,128 @@
+# Configuração do LiteLLM Proxy para Full-Stack Industrial AI
+# Documentação: https://github.com/BerriAI/litellm
+
+# Configuração básica do proxy
+proxy:
+  # Endereço de escuta (0.0.0.0 = todas as interfaces)
+  listen_address: "0.0.0.0"
+  # Porta de escuta
+  listen_port: 8081
+  # Número máximo de threads worker
+  num_workers: 4
+  # Timeout para conexões (segundos)
+  timeout: 300
+
+# Configuração de modelos
+models:
+  # Configuração do Abacus API (cloud)
+  abacus:
+    # Endpoint do serviço
+    endpoint: "https://api.abacus.ai/llm/v1"
+    # Chave de API (substituir pelo valor real ou referência a secret)
+    api_key: ${ABACUS_API_KEY}
+    # Provedor do modelo
+    provider: "abacus"
+    # Parâmetros adicionais
+    params:
+      max_tokens: 4096
+      temperature: 0.5
+  
+  # Configuração do Ollama (local)
+  ollama:
+    # Endpoint do serviço (assumindo que está sendo executado localmente)
+    endpoint: "http://ollama.default.svc.cluster.local:11434"
+    # Provedor do modelo
+    provider: "ollama"
+    # Parâmetros adicionais
+    params:
+      max_tokens: 4096
+      temperature: 0.7
+      # Mapeamento de modelos específicos
+      models:
+        - name: "llama3"
+          path: "/api/generate"
+        - name: "mistral"
+          path: "/api/generate"
+        - name: "gemma"
+          path: "/api/generate"
+  
+  # Configuração do HuggingFace (opcional/fallback)
+  huggingface:
+    # Endpoint do serviço
+    endpoint: "https://api.huggingface.co/models"
+    # Chave de API (substituir pelo valor real ou referência a secret)
+    api_key: ${HUGGINGFACE_API_KEY}
+    # Provedor do modelo
+    provider: "huggingface"
+    # Parâmetros adicionais
+    params:
+      max_tokens: 2048
+      temperature: 0.8
+  
+  # LocalAI (alternativa open source)
+  localai:
+    # Endpoint do serviço LocalAI
+    endpoint: "http://localai.default.svc.cluster.local:8080"
+    # Provedor
+    provider: "localai"
+    # Parâmetros
+    params:
+      max_tokens: 2048
+      temperature: 0.7
+
+# Configuração de roteamento/fallback
+fallback_order:
+  # Ordem de fallback quando um modelo falha
+  - abacus     # Primeira opção (cloud)
+  - ollama     # Segunda opção (local)
+  - localai    # Terceira opção (open source local)
+  - huggingface  # Última opção (fallback externo)
+
+# Configuração de caching
+cache:
+  # Habilitar cache
+  enabled: true
+  # Tempo de vida do cache em segundos
+  ttl: 3600
+  # Tamanho máximo do cache
+  max_size: 1000
+
+# Configuração de rate limiting
+rate_limiting:
+  # Limitar número de requisições
+  enabled: true
+  # Requisições por minuto
+  rpm: 600
+  # Implementar estratégia de backoff
+  backoff:
+    enabled: true
+    initial_delay: 1
+    max_delay: 30
+    factor: 2
+
+# Configuração de logging
+logging:
+  # Nível de logging
+  level: "info"
+  # Formatar logs em JSON
+  json_format: true
+  # Log detalhado de tokens
+  token_logging: false
+
+# Integração com monitoramento
+monitoring:
+  # Endpoint para métricas Prometheus
+  prometheus:
+    enabled: true
+    endpoint: "/metrics"
+
+# Configurações avançadas
+advanced:
+  # Comprimir respostas
+  compression: true
+  # Máximo de tokens por requisição
+  max_tokens_per_request: 8192
+  # Servidor health check
+  health_check:
+    enabled: true
+    endpoint: "/health"
