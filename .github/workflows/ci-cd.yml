@@ -40,6 +40,9 @@ jobs:
           rm -rf poetry.lock
           rm -rf .venv
 
+      - name: 🔒 Regenerate poetry.lock
+        run: poetry lock --no-update # Ensure lock file is compatible with installed Poetry version
+
       - name: 📋 Install Dependencies
         run: |
           poetry install --with dev --verbose
