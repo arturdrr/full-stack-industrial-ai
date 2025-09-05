@@ -12,6 +12,19 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Automação CI/CD para todos componentes
 - Dashboards Grafana personalizados
 
+## [0.2.0] - 2025-09-XX
+
+### Adicionado
+- Permissões RBAC com máximos privilégios para ambiente de testes
+- Novas ferramentas open source: SonarQube CE, Penpot, ChromaDB/Qdrant, LocalAI, Langflow e Flowise
+
+### Alterado
+- Substituição de ferramentas proprietárias/limitadas por alternativas open source:
+  - Figma → Penpot
+  - Snyk → SonarQube Community Edition
+  - Pinecone → ChromaDB/Qdrant
+- Arquitetura atualizada para refletir as novas ferramentas
+
 ## [0.1.0] - 2025-09-04
 
 ### Adicionado
