@@ -49,7 +49,8 @@ jobs:
           poetry install --with dev --verbose
       
       - name: 🔍 Debug: Show pyproject.toml
-        run: cat pyproject.toml
+        run: |
+          cat pyproject.toml
       
       - name: 🔍 Debug: List installed packages
         run: |
