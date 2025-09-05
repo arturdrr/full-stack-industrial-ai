@@ -29,43 +29,14 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
       
-      - name: 🔧 Configure Poetry
-        run: |
-          poetry config virtualenvs.create true
-          poetry config virtualenvs.in-project true
-      
-      - name: 🧹 Clear Poetry Cache and Venv
-        run: |
-          poetry cache clear --all pypi
-          rm -rf poetry.lock
-          rm -rf .venv
-
-      - name: 🔒 Regenerate poetry.lock
-        run: poetry lock --no-update # Ensure lock file is compatible with installed Poetry version
-
-            - name: 📋 Install Dependencies
+      - name: 📋 Install Dependencies
         run: |
           poetry install --with dev --verbose
       
-      - name: 🔍 Debug: Show pyproject.toml
-        run: cat pyproject.toml
-
-      - name: 🔍 Debug: List installed packages
-        run: poetry run pip list
-
       - name: 🧪 Run Tests
         run: |
-          # Verificar se pytest e pytest-cov estão disponíveis
-          poetry run pytest --version
-          poetry run python -c "import pytest_cov; print('pytest-cov instalado')"
-          # Executar testes com cobertura
           poetry run pytest tests/ -v
       
       - name: 🔒 Security Check
         run: |
           poetry run safety check
-      
-      - name: 📊 Upload Coverage
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.xml
