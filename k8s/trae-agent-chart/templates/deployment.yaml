@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "trae-agent.fullname" . }}
+  labels:
+    {{- include "trae-agent.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "trae-agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "trae-agent.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ .Values.serviceAccount.name | default "trae-agent-sa" }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          env:
+            {{- range .Values.env }}
+            - name: {{ .name }}
+              {{- if .value }}
+              value: {{ .value | quote }}
+              {{- else if .valueFrom }}
+              valueFrom:
+                {{- toYaml .valueFrom | nindent 16 }}
+              {{- end }}
+            {{- end }}
+            # Configurações específicas das integrações
+            {{- if .Values.integrations.langchain.enabled }}
+            - name: LANGCHAIN_ENABLED
+              value: "true"
+            {{- end }}
+            {{- if .Values.integrations.dyadAgent.enabled }}
+            - name: DYAD_AGENT_ENABLED
+              value: "true"
+            - name: DYAD_AGENT_MAX_STEPS
+              value: {{ .Values.integrations.dyadAgent.maxSteps | quote }}
+            {{- end }}
+            {{- if .Values.integrations.openHands.enabled }}
+            - name: OPENHANDS_ENABLED
+              value: "true"
+            - name: OPENHANDS_MAX_AGENTS
+              value: {{ .Values.integrations.openHands.maxAgents | quote }}
+            {{- end }}
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: trae-agent-storage
+              mountPath: /app/data
+          {{- end }}
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: trae-agent-storage
+          persistentVolumeClaim:
+            claimName: {{ include "trae-agent.fullname" . }}-pvc
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
