@@ -24,6 +24,33 @@ global:
     export_interval: 30
 
 # ================================
+# INTELIGÊNCIA DE ROTEAMENTO
+# ================================
+routing_intelligence:
+  enabled: true
+  query_classifier:
+    strategy: "hybrid" # simple_patterns | complex_patterns | llm_based
+    simple_patterns:
+      - "código"
+      - "desenvolvimento"
+      - "análise de texto"
+      - "privacidade"
+      - "local"
+      - "orquestração"
+      - "automação"
+    complex_patterns:
+      code_generation:
+        keywords: ["gerar código", "escrever script", "implementar função"]
+        exclude: ["revisar código"]
+      nlp_analysis:
+        keywords: ["analisar documento", "resumir texto", "extrair informações"]
+        min_length: 50 # caracteres
+      privacy_sensitive:
+        keywords: ["dados confidenciais", "processamento local", "privacidade"]
+      orchestration:
+        keywords: ["coordenar agentes", "fluxo de trabalho", "automatizar"]
+
+# ================================
 # PROVEDORES DE MODELOS
 # ================================
 model_providers:
