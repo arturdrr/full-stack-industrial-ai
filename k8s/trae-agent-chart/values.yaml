@@ -1,0 +1,146 @@
+# Número de réplicas do Trae Agent
+replicaCount: 1
+
+# Configuração da imagem
+image:
+  repository: your-docker-repo/trae-agent
+  tag: latest
+  pullPolicy: IfNotPresent
+  # pullSecrets:
+  #   - name: regcred
+
+# Configuração do serviço
+service:
+  type: ClusterIP  # Outros valores: NodePort, LoadBalancer
+  port: 8080
+  # nodePort: 30080  # Usado se service.type for NodePort
+
+# Configurações de recursos
+resources:
+  limits:
+    cpu: 2000m     # 2 CPUs
+    memory: 4Gi    # 4 GB RAM
+  requests:
+    cpu: 500m      # 0.5 CPU
+    memory: 1Gi    # 1 GB RAM
+
+# Afinidade e tolerações para agendamento de pods
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Configuração de autoscaling horizontal
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Configuração de ingress
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: trae-agent.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: trae-agent-tls
+  #    hosts:
+  #      - trae-agent.local
+
+# PersistentVolumeClaim para armazenamento persistente
+persistence:
+  enabled: true
+  storageClass: ""  # Deixar vazio para usar a storage class padrão
+  accessMode: ReadWriteOnce
+  size: 10Gi
+
+# Variáveis de ambiente para o Trae Agent
+env:
+  # Variáveis básicas
+  - name: ABACUS_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: trae-agent-secrets
+        key: abacus-api-key
+  - name: OPENAI_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: trae-agent-secrets
+        key: openai-api-key
+  - name: HUGGINGFACE_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: trae-agent-secrets
+        key: huggingface-api-key
+  - name: LOG_LEVEL
+    value: "INFO"
+  
+  # Configurações do agente
+  - name: TRAE_AGENT_MODEL
+    value: "abacus-llm-v1"
+  - name: TRAE_AGENT_MAX_STEPS
+    value: "200"
+  - name: ENABLE_LAKEVIEW
+    value: "true"
+
+  # Conexões com outros serviços
+  - name: KEYCLOAK_URL
+    value: "http://keycloak.default.svc.cluster.local:8080"
+  - name: VAULT_ADDR
+    value: "http://vault.default.svc.cluster.local:8200"
+  - name: OLLAMA_ENDPOINT
+    value: "http://ollama.default.svc.cluster.local:11434"
+  - name: N8N_WEBHOOK_URL
+    value: "http://n8n.default.svc.cluster.local:5678/webhook/"
+
+# Configuração para integrações
+integrations:
+  # Configuração do LangChain
+  langchain:
+    enabled: true
+    # Configuração específica do LangChain
+  
+  # Configuração do Dyad Agent
+  dyadAgent:
+    enabled: true
+    maxSteps: 100
+  
+  # Configuração do OpenHands
+  openHands:
+    enabled: true
+    maxAgents: 10
+
+# Configurações para serviço de saúde e prontidão
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+# Configuração de segurança
+securityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+# Nome da service account a ser usada
+serviceAccount:
+  create: false  # Definido como false porque já criamos no RBAC
+  name: "trae-agent-sa"  # Nome da service account que criamos no RBAC
