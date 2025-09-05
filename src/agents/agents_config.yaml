@@ -94,3 +94,32 @@ prompt_optimization:
     - "Provide detailed analysis"
     - "Include reasoning steps"
     - "Use full context window when needed"
+
+# ================================
+# CONFIGURAÇÃO DE SEGURANÇA
+# ================================
+safety_first_config:
+  global:
+    max_concurrent_agents: 3  # Reduzido para segurança
+    default_timeout: 15       # Timeout mais restritivo
+    max_context_length: 8000  # Limite para evitar confusão
+    
+  circuit_breakers:
+    enabled: true
+    max_steps_per_session: 20
+    max_cost_per_session: 1.00
+    loop_detection: true
+    anomaly_detection: true
+  
+  agents:
+    quick_agent:
+      max_steps: 3           # Muito restritivo
+      termination_required: true
+      
+    main_agent:
+      max_steps: 8           # Moderado  
+      context_validation: true
+      
+    expert_agent:
+      max_steps: 15          # Mais liberal mas controlado
+      human_approval: true   # Supervisão para casos complexos
