@@ -144,7 +144,7 @@ temp/
 .cache/
 
 # Package management
-poetry.lock
+
 yarn.lock
 package-lock.json
 
