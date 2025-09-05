@@ -12,7 +12,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Automação CI/CD para todos componentes
 - Dashboards Grafana personalizados
 
-## [0.2.0] - 2025-09-XX
+## [0.2.0] - 2025-09-05
 
 ### Adicionado
 - Permissões RBAC com máximos privilégios para ambiente de testes
