@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentação do Projeto
+    url: https://github.com/arturdrr/full-stack-industrial-ai/docs
+    about: Consulte a documentação completa do projeto antes de abrir uma issue.
+  - name: 🔒 Reportar Vulnerabilidade de Segurança
+    url: https://github.com/arturdrr/full-stack-industrial-ai/security/policy
+    about: Para vulnerabilidades de segurança, siga nossa política de divulgação responsável.
+  - name: 💬 Discussões da Comunidade
+    url: https://github.com/arturdrr/full-stack-industrial-ai/discussions
+    about: Para perguntas gerais, ideias ou discussões que não são bugs ou solicitações de recursos.
