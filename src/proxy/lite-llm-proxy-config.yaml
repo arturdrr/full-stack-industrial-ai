@@ -1,280 +1,197 @@
-# Configuração do LiteLLM Proxy para Full-Stack Industrial AI
-# Documentação: https://litellm.vercel.app/docs/proxy/configs
-
 # ================================
-# CONFIGURAÇÃO DO SERVIDOR
+# CONFIGURAÇÃO MCP
 # ================================
-general_settings:
-  master_key: ${LITELLM_MASTER_KEY} # Chave mestre para admin
-  database_url: ${DATABASE_URL:-"sqlite:///litellm.db"} # Persistência
-
-# Configuração do servidor
-server:
-  port: 8081
-  host: "0.0.0.0"
-  workers: 4
-  timeout: 300
-
-# Configurações de segurança
-security:
-  disable_spend_logs: false
-  disable_master_key_return: true
-  enforce_user_param: true
-
-# ================================
-# MODELOS E PROVEDORES
-# ================================
-model_list:
-
-  # 🌟 ABACUS API (Principal - Cloud)
-  - model_name: "gpt-4"
-    litellm_params:
-      model: "abacus/gpt-4"
-      api_key: ${ABACUS_API_KEY}
-      api_base: "https://api.abacus.ai/llm/v1"
-    model_info:
-      mode: "chat"
-      input_cost_per_token: 0.00003
-      output_cost_per_token: 0.00006
-      max_tokens: 4096
-      supports_function_calling: true
-
-  - model_name: "gpt-3.5-turbo"
-    litellm_params:
-      model: "abacus/gpt-3.5-turbo"
-      api_key: ${ABACUS_API_KEY}
-      api_base: "https://api.abacus.ai/llm/v1"
-    model_info:
-      mode: "chat"
-      input_cost_per_token: 0.000001
-      output_cost_per_token: 0.000002
-      max_tokens: 4096
-
-  # 🏠 OLLAMA (Local - Privacidade)
-  - model_name: "llama3"
-    litellm_params:
-      model: "ollama/llama3"
-      api_base: "http://ollama.default.svc.cluster.local:11434"
-    model_info:
-      mode: "chat"
-      max_tokens: 4096
-      supports_streaming: true
-
-  - model_name: "mistral"
-    litellm_params:
-      model: "ollama/mistral"
-      api_base: "http://ollama.default.svc.cluster.local:11434"
-    model_info:
-      mode: "chat"
-      max_tokens: 4096
-
-  # 🤗 HUGGINGFACE (Open Source)
-  - model_name: "codellama"
-    litellm_params:
-      model: "huggingface/microsoft/CodeLlama-7b-Python-hf"
-      api_key: ${HUGGINGFACE_API_KEY}
-    model_info:
-      mode: "chat"
-      max_tokens: 2048
-      supports_code_completion: true
-
-  # 🔧 LOCALAI (Self-hosted)
-  - model_name: "localai-gpt"
-    litellm_params:
-      model: "localai/gpt-3.5-turbo"
-      api_base: "http://localai.default.svc.cluster.local:8080/v1"
-    model_info:
-      mode: "chat"
-      max_tokens: 4096
-
-# ================================
-# ROTAMENTO E FALLBACK
-# ================================
-router_settings:
-  routing_strategy: "latency-based-routing" # ou "simple-shuffle"
-  num_retries: 3
-  timeout: 30
-
-  # Configuração de fallback
-  fallbacks:
-    - "gpt-4": ["gpt-3.5-turbo", "llama3", "mistral"]
-    - "gpt-3.5-turbo": ["llama3", "mistral", "localai-gpt"]
-    - "llama3": ["mistral", "localai-gpt"]
-
-  # Health checks automáticos
-  health_check_interval: 30
-
-  # Load balancing
-  load_balancing:
-    cooldown_time: 5
-    allowed_fails: 3
-
-# ================================
-# RATE LIMITING
-# ================================
-litellm_settings:
-
-  # Rate limiting por usuário/chave
-  max_budget: 100.0 # USD por mês
-  budget_duration: "1mo"
-
-  # Limites por modelo
-  rpm: 600 # Requests per minute
-  tpm: 60000 # Tokens per minute
-
-  # Configurações específicas por provedor
-  redis_host: ${REDIS_HOST:-"redis.default.svc.cluster.local"}
-  redis_port: 6379
-  redis_password: ${REDIS_PASSWORD}
-
-# ================================
-# CACHING
-# ================================
-cache:
-  type: "redis" # ou "s3", "local"
-  host: ${REDIS_HOST:-"redis.default.svc.cluster.local"}
-  port: 6379
-  password: ${REDIS_PASSWORD}
-
-  # Configurações de cache
-  ttl: 3600 # 1 hora
-  namespace: "litellm_cache"
-
-  # Cache semântico
-  semantic_cache:
-    similarity_threshold: 0.8
-    cache_kwargs:
-      semantic_cache: true
-
-# ================================
-# LOGGING E OBSERVABILIDADE
-# ================================
-logging:
-  success_callback: ["prometheus", "langfuse"]
-  failure_callback: ["prometheus"]
-
-  callbacks:
-    prometheus:
-      service_name: "litellm_proxy"
-
-    langfuse:
-      public_key: ${LANGFUSE_PUBLIC_KEY}
-      secret_key: ${LANGFUSE_SECRET_KEY}
-      host: ${LANGFUSE_HOST:-"http://langfuse.default.svc.cluster.local:3000"}
-
-  # Configurações de log
-  environment_variables:
-    LITELLM_LOG: "INFO"
-    LITELLM_REQUEST_TIMEOUT: 300
-    LITELLM_NUM_RETRIES: 3
-    LITELLM_DEBUG: false
-
-# ================================
-# SEGURANÇA E AUTENTICAÇÃO
-# ================================
-security:
-  user_api_key_auth:
-
-    # Chaves de usuário (geradas automaticamente)
-    user_email_address: ${ADMIN_EMAIL:-"admin@example.com"}
-
-  # Configurações de autenticação
-  auth_strategy: "user_id_key_auth" # ou "api_key_auth"
-
-  # Rate limiting por usuário
-  rate_limiting:
-    user_max_budget: 50.0
-    user_budget_duration: "1mo"
-
-# ================================
-# INTEGRAÇÕES
-# ================================
-integrations:
-
-  # Slack para alertas
-  slack:
-    webhook_url: ${SLACK_WEBHOOK_URL}
-
-  # Webhook para eventos
-  webhooks:
-    - event: "spend_tracked"
-      url: "${WEBHOOK_URL}/spend"
-    - event: "key_created"
-      url: "${WEBHOOK_URL}/keys"
-
-# ================================
-# CONFIGURAÇÕES ESPECÍFICAS
-# ================================
-model_specific_settings:
-
-  # Configurações específicas para código
-  codellama:
-    temperature: 0.1
-    max_tokens: 2048
-    stop: ["```", "\n\n"]
-
-  # Configurações para chat geral
-  gpt-4:
-    temperature: 0.7
-    max_tokens: 4096
-    presence_penalty: 0.1
-
-  # Configurações locais (mais liberdade)
-  llama3:
-    temperature: 0.8
-    max_tokens: 4096
-    top_p: 0.9
-
-# ================================
-# ALERTAS E MONITORAMENTO
-# ================================
-alerting:
-
-  # Alertas de custo
-  budget_alerts:
-    - threshold: 80 # 80% do orçamento
-      channels: ["slack", "email"]
-    - threshold: 95 # 95% do orçamento
-      channels: ["slack", "email", "webhook"]
-
-  # Alertas de performance
-  latency_alerts:
-    threshold: 30 # segundos
-    channels: ["slack"]
-
-  # Alertas de falha
-  error_rate_alerts:
-    threshold: 5 # 5% de erro
-    window: "5m"
-    channels: ["slack", "webhook"]
-
-# ================================
-# DESENVOLVIMENTO/DEBUG
-# ================================
-development:
-  enable_preview_features: true
-  detailed_debug_logs: false
-  mock_response_mode: false
-
-  # Métricas detalhadas
-  detailed_logging: true
-  log_raw_request_response: false # ⚠️ Desabilitar em prod
-
-# ================================
-# CONFIGURAÇÕES DE PRODUÇÃO
-# ================================
-production:
-  debug_mode: false
-  verbose_logging: false
-  
-  scaling:
-    auto_scaling: true
-    min_replicas: 2
-    max_replicas: 10
-    cpu_threshold: 70
-    memory_threshold: 80
-  
-  backup:
+mcp_settings:
+  # Servidor MCP principal
+  mcp_server:
     enabled: true
-    interval: "0 2 * * *"  # Daily at 2 AM
-    retention_days: 30
+    host: "0.0.0.0"
+    port: 8082
+    protocol: "stdio"  # ou "http", "sse"
+    
+  # Tools MCP expostos
+  tools:
+    - name: "query_agent"
+      description: "Executa query em qualquer agente da stack"
+      parameters:
+        agent: { type: "string", enum: ["trae", "langchain", "dyad", "openhands"] }
+        query: { type: "string" }
+        
+    - name: "get_metrics"
+      description: "Obtém métricas de performance dos agentes"
+      parameters:
+        timeframe: { type: "string", default: "1h" }
+        
+    - name: "manage_workflow"
+      description: "Gerencia workflows multi-agente"
+      parameters:
+        action: { type: "string", enum: ["start", "stop", "status"] }
+        workflow_id: { type: "string" }
+
+  # Resources MCP
+  resources:
+    - name: "agent_configs"
+      description: "Configurações dos agentes"
+      uri: "config://agents/*"
+      
+    - name: "execution_logs"
+      description: "Logs de execução dos agentes"
+      uri: "logs://agents/*"
+      
+    - name: "metrics_data"
+      description: "Dados de métricas em tempo real"
+      uri: "metrics://prometheus/*"
+
+  # Prompts MCP reutilizáveis
+  prompts:
+    - name: "orchestrate_multi_agent"
+      description: "Template para orquestração multi-agente"
+      template: |
+        Você é um orquestrador de agentes IA. Sua tarefa é:
+        1. Analisar a requisição: {query}
+        2. Identificar agentes necessários: {available_agents}
+        3. Definir sequência de execução
+        4. Coordenar execução e coletar resultados
+        
+    - name: "agent_handoff"
+      description: "Template para transferência entre agentes"
+      template: |
+        Transferindo contexto de {source_agent} para {target_agent}:
+        Contexto: {context}
+        Objetivo: {objective}
+        Estado atual: {current_state}
+
+# ================================
+# ORCHESTRAÇÃO MCP
+# ================================
+mcp_orchestration:
+  # Descoberta automática de agentes
+  auto_discovery:
+    enabled: true
+    scan_interval: 30
+    endpoints:
+      - "http://trae-agent.default.svc.cluster.local:8080/mcp"
+      - "http://langchain-agent.default.svc.cluster.local:8081/mcp"
+      - "http://openhands.default.svc.cluster.local:8082/mcp"
+  
+  # Roteamento inteligente
+  routing:
+    strategy: "capability_based"  # ou "round_robin", "load_balanced"
+    capability_mapping:
+      code_generation: ["trae", "openhands"]
+      text_analysis: ["langchain", "trae"]
+      local_processing: ["dyad"]
+      workflow_orchestration: ["openhands", "trae"]
+  
+  # Coordenação multi-agente
+  coordination:
+    max_concurrent_workflows: 10
+    workflow_timeout: 1800  # 30 minutos
+    handoff_timeout: 30     # 30 segundos
+    
+# ================================
+# BRIDGING MCP <-> LITELLM
+# ================================
+mcp_bridge:
+  # Converter calls LiteLLM para MCP
+  litellm_to_mcp:
+    enabled: true
+    tool_mapping:
+      # Mapear funções LiteLLM para tools MCP
+      "function_call": "mcp_tool_call"
+      "get_completion": "mcp_completion"
+      
+  # Converter responses MCP para LiteLLM
+  mcp_to_litellm:
+    enabled: true
+    response_format: "openai_compatible"
+    
+  # Middleware para conversão
+  middleware:
+    - name: "context_propagation"
+      enabled: true
+    - name: "error_handling"
+      enabled: true
+    - name: "metrics_collection"
+      enabled: true
+
+# ================================
+# MCP SERVERS CONFIGURATION
+# ================================
+mcp_servers:
+  # Core Infrastructure
+  git_github:
+    transport: "stdio"
+    command: "npx"
+    args: ["@anthropic/mcp-git"]
+    env:
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      GITHUB_REPO: "arturdrr/full-stack-industrial-ai"
+  
+  docker_orchestration:
+    transport: "stdio" 
+    command: "docker-mcp-server"
+    env:
+      DOCKER_HOST: "unix:///var/run/docker.sock"
+  
+  # AI/ML Specific
+  multi_agent_orchestrator:
+    transport: "http"
+    endpoint: "http://mcp-agent.default.svc.cluster.local:8090"
+    headers:
+      Authorization: "Bearer ${MCP_AGENT_TOKEN}"
+  
+  # Database Access
+  database_manager:
+    transport: "stdio"
+    command: "python"
+    args: ["-m", "mcp_database"]
+    env:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+  
+  # Observability
+  prometheus_grafana:
+    transport: "http"
+    endpoint: "http://prometheus.default.svc.cluster.local:9090/mcp"
+    
+  # Enterprise Integration  
+  slack_notifications:
+    transport: "stdio"
+    command: "mcp-slack-server"
+    env:
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
+      SLACK_SIGNING_SECRET: ${SLACK_SIGNING_SECRET}
+  
+  keycloak_auth:
+    transport: "http"
+    endpoint: "http://keycloak.default.svc.cluster.local:8080/mcp"
+    headers:
+      Authorization: "Bearer ${KEYCLOAK_ADMIN_TOKEN}"
+
+# Tool routing per agent
+agent_mcp_mapping:
+  trae_agent:
+    allowed_mcps: 
+      - git_github
+      - docker_orchestration
+      - multi_agent_orchestrator
+      - database_manager
+      - observability
+    
+  langchain_agent:
+    allowed_mcps:
+      - database_manager
+      - observability
+      - slack_notifications
+    
+  openhands_orchestrator:
+    allowed_mcps:
+      - git_github
+      - docker_orchestration
+      - multi_agent_orchestrator
+      - keycloak_auth
+    
+  dyad_agent:
+    allowed_mcps:
+      - database_manager  # Apenas local/privado
