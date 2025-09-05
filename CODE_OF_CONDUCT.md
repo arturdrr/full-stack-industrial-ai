@@ -1,91 +1,43 @@
-# 🤝 Contribuindo para o Projeto
+# Código de Conduta
 
-Obrigado pelo interesse em contribuir com nossa stack full-stack industrial AI! Este documento fornece as diretrizes para contribuir com este projeto.
+## Nosso Compromisso
 
-## 📋 Processo de Contribuição
+No interesse de promover um ambiente aberto e acolhedor, nós, como contribuidores e mantenedores, nos comprometemos a tornar a participação em nosso projeto e em nossa comunidade uma experiência livre de assédio para todos, independentemente de idade, tamanho corporal, deficiência, etnia, identidade e expressão de gênero, nível de experiência, nacionalidade, aparência pessoal, raça, religião, identidade ou orientação sexual.
 
-1. **Fork** o repositório
-2. **Clone** seu fork para sua máquina local
-3. **Crie uma branch** para sua feature ou correção (`git checkout -b feature/nova-funcionalidade`)
-4. **Desenvolva** suas alterações
-5. **Commit** suas mudanças com mensagens descritivas (`git commit -am 'Adiciona nova funcionalidade: XYZ'`)
-6. **Push** para a branch no seu fork (`git push origin feature/nova-funcionalidade`)
-7. **Envie um Pull Request** para a branch principal
+## Nossos Padrões
 
-## 🌟 Padrões de Código
+Exemplos de comportamento que contribuem para criar um ambiente positivo incluem:
 
-### Geral
-- Siga os padrões de código existentes no projeto
-- Mantenha o código limpo e bem documentado
-- Escreva testes para suas alterações quando aplicável
-- Atualize a documentação para refletir suas mudanças
+* Usar linguagem acolhedora e inclusiva
+* Respeitar pontos de vista e experiências diferentes
+* Aceitar críticas construtivas com elegância
+* Focar no que é melhor para a comunidade
+* Mostrar empatia para com outros membros da comunidade
 
-### Python
-- Siga o PEP 8 para estilo de código
-- Use docstrings para documentar funções e classes
-- Utilize tipagem estática quando possível
+Exemplos de comportamento inaceitável incluem:
 
-### JavaScript/TypeScript (Frontend)
-- Utilize padrões modernos de ES6+
-- Siga as convenções do ESLint configuradas no projeto
-- Mantenha componentes React simples e funcionais
+* Uso de linguagem ou imagens sexualizadas e atenção ou avanços sexuais indesejados
+* Comentários insultuosos/pejorativos e ataques pessoais ou políticos
+* Assédio público ou privado
+* Publicar informações privadas de terceiros sem permissão explícita
+* Outras condutas que poderiam ser consideradas inadequadas em um ambiente profissional
 
-### Kubernetes/Docker
-- Mantenha os Dockerfiles simples e eficientes
-- Siga as melhores práticas de segurança para containers
-- Documente todas as configurações Kubernetes
+## Nossas Responsabilidades
 
-## 📊 Testes
+Os mantenedores do projeto são responsáveis por esclarecer os padrões de comportamento aceitável e devem tomar medidas corretivas apropriadas e justas em resposta a quaisquer instâncias de comportamento inaceitável.
 
-- Escreva testes unitários para todas as novas funcionalidades
-- Garanta que todos os testes passem antes de enviar um PR
-- Considere adicionar testes de integração quando necessário
+Os mantenedores do projeto têm o direito e a responsabilidade de remover, editar ou rejeitar comentários, commits, código, edições wiki, issues e outras contribuições que não estejam alinhadas a este Código de Conduta, ou de banir temporária ou permanentemente qualquer contribuidor por outros comportamentos que considerem inadequados, ameaçadores, ofensivos ou prejudiciais.
 
-## 📝 Commits
+## Escopo
 
-- Use mensagens de commit claras e descritivas
-- Referencie issues ou PRs quando relevante
-- Estruture suas mensagens de commit:
-  ```
-  tipo(escopo): descrição concisa
-  
-  Descrição detalhada se necessário. Explique o "por quê" e não o "o quê".
-  
-  Refs #123
-  ```
-  
-  Onde `tipo` pode ser:
-  - `feat`: Nova funcionalidade
-  - `fix`: Correção de bug
-  - `docs`: Mudanças na documentação
-  - `style`: Formatação, ponto e vírgula, etc.
-  - `refactor`: Refatoração de código
-  - `test`: Adição de testes
-  - `chore`: Tarefas de manutenção
+Este Código de Conduta se aplica tanto em espaços do projeto quanto em espaços públicos quando um indivíduo está representando o projeto ou sua comunidade. Exemplos de representação do projeto incluem o uso de um endereço de e-mail oficial do projeto, postagem por meio de uma conta oficial de mídia social ou atuação como representante designado em um evento online ou offline. A representação de um projeto pode ser definida e esclarecida pelos mantenedores do projeto.
 
-## 📄 Pull Requests
+## Aplicação
 
-- Use o template fornecido para criar seu PR
-- Descreva claramente o propósito e escopo da alteração
-- Referencie quaisquer issues relacionadas
-- Mantenha os PRs focados em uma única mudança/funcionalidade
+Instâncias de comportamento abusivo, de assédio ou de outra forma inaceitável podem ser relatadas entrando em contato com a equipe do projeto em [arturdr@gmail.com](mailto:arturdr@gmail.com). Todas as reclamações serão analisadas e investigadas e resultarão em uma resposta considerada necessária e apropriada às circunstâncias. A equipe do projeto é obrigada a manter a confidencialidade em relação ao relator de um incidente. Mais detalhes de políticas específicas de aplicação podem ser publicados separadamente.
 
-## 🔍 Revisão de Código
+Mantenedores do projeto que não seguem ou não fazem cumprir o Código de Conduta de boa fé podem enfrentar repercussões temporárias ou permanentes, conforme determinado por outros membros da liderança do projeto.
 
-- Os PRs precisam ser aprovados por pelo menos um mantenedor
-- Esteja aberto a feedback e faça as alterações solicitadas
-- Responda a comentários e perguntas de forma clara
+## Atribuição
 
-## 📚 Documentação
-
-- Atualize o README.md se necessário
-- Mantenha o CHANGELOG.md atualizado
-- Adicione documentação para novas funcionalidades
-
-## ❓ Dúvidas
-
-Se você tiver dúvidas sobre como contribuir, abra uma issue ou entre em contato com a equipe de mantenedores através do e-mail listado no README.
-
----
-
-Agradecemos suas contribuições para tornar este projeto melhor!
+Este Código de Conduta é adaptado do [Contributor Covenant](https://www.contributor-covenant.org), versão 1.4, disponível em [https://www.contributor-covenant.org/version/1/4/code-of-conduct.html](https://www.contributor-covenant.org/version/1/4/code-of-conduct.html)
