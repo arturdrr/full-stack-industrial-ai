@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trae-agent
+  labels:
+    app: trae-agent
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: trae-agent
+  template:
+    metadata:
+      labels:
+        app: trae-agent
+    spec:
+      containers:
+      - name: trae-agent
+        image: your-docker-repo/trae-agent:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ABACUS_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: abacus-secret
+              key: api_key
+        resources:
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
